@@ -1,3 +1,4 @@
 
 *.fls
 Documents/head.tex
+.DS_Store

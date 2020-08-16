@@ -1,5 +1,5 @@
 # Fdb version 3
-["lualatex"] 1597594880 "head.tex" "head.pdf" "head" 1597594881
+["lualatex"] 1597595140 "head.tex" "head.pdf" "head" 1597595140
   "/usr/local/texlive/2020/texmf-dist/tex/generic/unicode-data/CaseFolding.txt" 1584044743 82810 5f9103a43f1de6931ccd535dc2d04777 ""
   "/usr/local/texlive/2020/texmf-dist/tex/generic/unicode-data/PropList.txt" 1584044743 126063 09a6b8a9bf45d76e1051f087476c584a ""
   "/usr/local/texlive/2020/texmf-dist/tex/generic/unicode-data/ScriptExtensions.txt" 1584044743 21036 0498414f4b3ea003decdfbdc05d5eee4 ""
@@ -40,7 +40,7 @@
   "/usr/local/texlive/2020/texmf-dist/tex/luatex/luaotfload/luaotfload-unicode.lua" 1580769009 3061 d32d058dd7ec9090956d807868f764b0 ""
   "/usr/local/texlive/2020/texmf-var/web2c/luahbtex/lualatex.fmt" 1587915323 2691932 1544ba1e9cbe25cd83fa07944f48918b ""
   "head.aux" 1597594880 8 a94a2480d3289e625eea47cd1b285758 ""
-  "head.tex" 1597594867 4 a677b4ca569bb73cd4c03bf90399cf3f ""
+  "head.tex" 1597595127 345 10871b0924c2e519dcb2ca71530f6187 ""
   (generated)
-  "head.log"
   "head.pdf"
+  "head.log"
