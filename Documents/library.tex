@@ -2170,7 +2170,7 @@ for i in conv[-2::-1]: print(i)
 
 \newpage
 
-\begin{exm} ある星には $M$ 種類の言語がある。$N$ 人の人がいて、それぞれ $K_i$ 種類の言語 $L_{i1},\ldots L_{iK_i}$ を話すことができる。ある $2$ 人はともに話すことの出来る言語が存在する、あるいはともにコミュニケーションをとることができる人が存在するとき、コミュニケーションをとることができる。全ての人が他の全ての人とコミュニケーションをとれるか判定せよ。$2\le N\le 10^5$, $1\le M\le 10^5$, $\sum K_i \le 10^5$\quad\upshape CODE FESTIVAL '16 Final C - Interpretation\\
+\begin{exm} ある星には $M$ 種類の言語がある。$N$ 人の人がいて、それぞれ $K_i$ 種類の言語 $L_{i1},\ldots L_{iK_i}$ を話すことができる。ある $2$ 人はともに話すことの出来る言語が存在する、あるいはともにコミュニケーションをとることができる人が存在するとき、コミュニケーションをとることができる。全ての人が他の全ての人とコミュニケーションをとれるか判定せよ。$2\le N\le 10^5$, $1\le M\le 10^5$, $\sum K_i \le 10^5$.\quad\upshape CODE FESTIVAL '16 Final C - Interpretation\\
 \begin{lstlisting}
 (n, m), *LL = [[*map(int,o.split())] for o in open(0)]
 UF = UnionFind(n + m)
@@ -2181,4 +2181,58 @@ print(len([*filter(lambda i: i < n, UF.roots())]) == 1 and "YES" or "NO")
 \end{lstlisting}\quad\\
 人を $[0,N)$ 、言語を $[N,N+M)$ で管理し、それぞれの人について話せる言語に辺を貼り、連結成分の数を数えれば良い。ただし、番号が $N$ 未満の根に絞らないと言語が残っていても判定されてしまうので注意。
 \end{exm}
+
+\SS
+
+\begin{exm} ある国には $N$ 個の都市と $M$ 本の道路があり、$i$ 本目の道路は都市 $a_i, b_i$ を結び $y_i$ 年に作られた。$Q$ 人の住民について、$j$ 人目の住民は都市 $v_j$ に住んでおり $w_j$ 年以前に作られた道路を通らない。それぞれの住民に対して行くことができる都市の数を求めよ。$1\le N,Q\le 10^5$, $0\le N\le 10^5$, $1\le y_i\le 2\times 10^5$, $0\le w_i\le 2\times 10^5$.\quad\upshape ABC 040 D - 道路の老朽化対策について\\
+\begin{lstlisting}
+(n, m), *d = [[*map(int,o.split())] for o in open(0)]
+I, q, J = d[:m], int(*d[m]), d[m + 1:]
+data = []
+for a, b, y in I:
+    data += [-y, 1, a, b],
+for e, (v, w) in enumerate(J):
+    data += [-w, 0, e, v],
+data.sort()
+
+UF, ans = UnionFind(n + 1), [0] * q
+for _, F, c, d in data:
+    if F:
+        UF.union(c, d)
+    else:
+        ans[c] = UF.size(d)
+
+for s in ans:
+    print(s)
+\end{lstlisting}\quad\\
+年の大きい方から処理していけばよい。なお、同じ年の中では住民クエリを先に処理する必要があることに注意。
+\end{exm}
+
+\SS
+
+\begin{exm}先頭が $0$ でない $N$ 桁の整数を $2$ 回メモしたが、一部字が汚くアルファベットに見えている。同じアルファベットは同じ数字を表すとするとき（逆は必ずしも成り立たない）、最大で何種類の数が考えられるか。$1\le N\le 18$.\upshape\quad ARC027 B - 大事な数なのでZ回書きまLた。\\
+\begin{lstlisting}
+# print(ord("A")) -> 65
+code = lambda char: ord(char) - 55 if char.isalpha() else int(char)
+
+n = int(input())
+*s1, = map(code, input())
+*s2, = map(code, input())
+
+UF = Un1onF1nd(36)
+for s, t in zip(s1, s2):
+    UF.un1on(s, t)
+
+ans = 1
+used = set()
+for e, s in enumerate(s1):
+    if any(UF.same(i, s) for i in range(10)) or (t := UF.f1nd(s)) in used:
+        continue
+    used |= {t}
+    ans *= 10 - (e == 0)
+print(ans)
+\end{lstlisting}\quad\\
+$s_{1i},s_{2i}$ を結んで得られるグラフの連結成分のうち数字が含まれているものは確定する。そうでないとき、$10$ 通りの可能性がある。ただし、先頭には $0$ は使えないので、それを考慮して前から見ていきすでにチェックしたルートはパスするようにすればよい。
+\end{exm}
+
 \end{document}
