@@ -2046,7 +2046,7 @@ print(c)
 \newpage
 
 \begin{defi}
-グラフの頂点 $v$ に接続する辺の本数を $v$ の次数 (degree) という。また、閉路を含まないグラフを森 (forest) といい、連結な森を {\bf 木} (tree) と呼ぶ。
+グラフの頂点 $v$ に接続する辺の本数を $v$ の次数 (degree) という。また、閉路を含まないグラフを{\bf 森} (forest) といい、連結な森を {\bf 木} (tree) と呼ぶ。
 \end{defi}
 
 \SS
@@ -2081,13 +2081,104 @@ print(sum(node[i] == edge[i] + 1 for i in range(n)))
 \newpage
 
 \begin{exm} ある街には $N$ 個の交差点と $M$ 本の道路があり、$i$ 番目の道路は交差点 $a_i,b_i$ を結んでいる。どの交差点からも道路で別のどの交差点にも行けるようにするには最小で何本の道路を建設する必要があるか。$1 \le N \le 10^5$, $0 \le M \le 10^5$, $1 \le a_i < b_i \le N$\upshape\quad ARC032 B - 道路工事\\
-\begin{lstlisting}
+\begin{lstlisting}[frame = none]
 (n, m), *q = [[*map(int, o.split())] for o in open(0)]
 uf = UnionFind(n)
 for a, b in q:
     uf.union(a - 1, b - 1)
 print(uf.group_count() - 1)
+\end{lstlisting}
+\end{exm}
+
+\SS
+
+\begin{exm}\upshape
+とあるSNSでは、$A_i$ と $B_i$ $(1\le i\le M)$ の間に友達関係があり、$C_i$ と $D_i$ $(1\le i\le K)$の間にブロック関係がある。異なる人の組 $(a,b)$　であって、友達関係でもブロック関係でもなく、数列 $c_i$ であって（ $c_0 = a \land c_L = b \land \forall i \in [0,L), c_i$ と $c_{i+1}$ は友達関係である）を満たすようなものが存在しているとき、人 $a,b$ は友達候補であるとする。それぞれの人に対し友達候補の数を求めよ。$2\le N\le 10^5$, $0\le M,K\le 10^5$.\quad ABC157 D - Friend Suggestions\\
+\begin{lstlisting}[frame = none]
+(n, m, k), *q = [[*map(int, o.split())] for o in open(0)]
+UF, non_cand = UnionFind(n), [1] * n
+for a, b in q[:m]:
+    a -= 1; b -= 1
+    UF.union(a, b)
+    non_cand[a] += 1; non_cand[b] += 1
+for c, d in q[m:]:
+    c -= 1; d -= 1
+    if UF.same(c, d):
+        non_cand[c] += 1; non_cand[d] += 1
+print(*[UF.size(i) - non_cand[i] for i in range(n)])
 \end{lstlisting}\quad\\
-連結成分数 $-1$ 本敷けば十分である。
+友達関係でUnionFindを構築する。それぞれの人に対して属する連結成分のサイズを求め、非候補［自分（$1$ で初期化）、友達関係、同じ連結成分に属しブロック関係、の合計］を引けば良い。
+\end{exm}
+
+\newpage
+
+\begin{defi} 木の末端の辺を葉という。グラフ $G(V,E)$ の頂点集合 $V$ と辺集合の部分集合 $T\subseteq E$ からなる $G'(V,T)$ が木のとき、$G'$ は $G$ の{\bf 全域木} であるという。
+\end{defi}
+
+\SS
+
+\begin{exm} $N$ 以下の正整数を並び替えた数列 $p_1,\ldots,p_N$ と $N$ 以下の正整数の組 $(x_i,y_i)$ が $M$ 個与えられる。「任意の $j$ を選び $p_{x_j},p_{y_j}$ をスワップする」動作を任意の回数行えるとき、最終的に $p_i=i$ となる $i$ の最大数を求めよ。 $2\le N\le 10^5$, $1\le M\le 10^5$. \quad\upshape ARC 097 D - Equals\\
+\begin{lstlisting}
+(n, m), p, *q = [list(map(int, o.split())) for o in open(0)]
+UF = UnionFind(n + 1)
+for a, b in q:
+    UF.union(a, b)
+print(sum(UF.same(p[i], i + 1) for i in range(n)))
+\end{lstlisting}\quad\\
+頂点集合 $V=[1,N]\cap\ZZ$, 辺集合 $E=\left\{(x_i,y_i)\mid1\le i\le M\right\}$ から成るグラフ $G(V,E)$ を考える。$G$ の連結成分の集合 $G'={g_k}$ に対して $\exist g_k\in G', (p_i,i) \in g_k^2$ ならば $p_i=i$ とできる（証明は以下）。また逆は明らかなので、UnionFind を構築しその数を数えれば良い。
+\begin{proof}
+各 $k$ に対して、全単射 $f:g_k \rightarrow \left\{p_i\mid i \in g_k \right\}$ であって
+\begin{equation}
+\exists g_k\in G', (p_i,i) \in g_k^2 \Longleftrightarrow f(i)=i
+\end{equation}
+と成るようなものが存在し、うまく全域木をとり葉 $i$ に $f(i)$ をおく操作を繰り返せばよい、
+\end{proof}
+\end{exm}
+
+\SS
+
+\begin{exm} $N$ 枚のカードについて、$i$ 番目に書かれた数字は $A_i$ で、$1$ か $2$ のどちらかである。今、$M$ 個の情報が与えられ、$A_{X_i}+A_{Y_i}+Z_i \in 2\ZZ$ である。少なくともいくつ $A_i$ の値を知れば全ての $A_i$ の値がわかるか。$2\le N\le 10^5$, $1\le M\le 10^5$, $1\le Z_i\le 100$. \quad\upshape ABC126 E - 1 or 2
+\begin{lstlisting}
+(n, m), *q = [list(map(int, o.split())) for o in open(0)]
+UF = UnionFind(n)
+for x, y, _ in q:
+    UF.union(x - 1, y - 1)
+print(UF.group_count())
+\end{lstlisting}\quad\\
+$Z_i$ の偶奇によって、$A_{X_i},A_{Y_i}$ は偶奇が同じ / 異なるという情報を得る。数字は $1$ か $2$ のみだから、$X_i,Y_i$ を繋ぐ UnionFind の連結成分数だけわかれば最終的に連鎖的に値は決定する。
+\end{exm}
+
+\SS
+
+\begin{exm} $N$ 個の島および島 $A_i,B_i$ を結ぶ全て異なる橋が $M$ 本ある。はじめどの $2$ 島についても何らかの経路が存在するが、橋は $1$ 番目から順に全て崩落する。行き来できない島の組 $a<b$ の数を不便さと呼ぶとき、$i$ 番目の橋が崩落した直後の不便さを答えよ。$2\le N\le 10^5$, $1\le M\le 10^5$\quad\upshape ABC120 D - Decayed Bridges\\
+\begin{lstlisting}
+(n, m), *q = [map(int, i.split()) for i in open(0)]
+UF = UnionFind(n)
+conv = [n * (n - 1) // 2]
+for a, b in q[::-1]:
+    a -= 1; b -= 1
+    if UF.same(a, b):
+        conv += conv[-1],
+    else:
+        conv += conv[-1] - UF.size(a) * UF.size(b),
+    UF.union(a, b)
+assert conv[-1] == 0
+for i in conv[-2::-1]: print(i)
+\end{lstlisting}\quad\\
+クエリを先読みして逆順に処理し不便さを減らしていくようにすれば求めることができる。
+\end{exm}
+
+\newpage
+
+\begin{exm} ある星には $M$ 種類の言語がある。$N$ 人の人がいて、それぞれ $K_i$ 種類の言語 $L_{i1},\ldots L_{iK_i}$ を話すことができる。ある $2$ 人はともに話すことの出来る言語が存在する、あるいはともにコミュニケーションをとることができる人が存在するとき、コミュニケーションをとることができる。全ての人が他の全ての人とコミュニケーションをとれるか判定せよ。$2\le N\le 10^5$, $1\le M\le 10^5$, $\sum K_i \le 10^5$\quad\upshape CODE FESTIVAL '16 Final C - Interpretation\\
+\begin{lstlisting}
+(n, m), *LL = [[*map(int,o.split())] for o in open(0)]
+UF = UnionFind(n + m)
+for e, (k, *L) in enumerate(LL):
+    for l in L:
+        UF.union(e, l + n - 1)
+print(len([*filter(lambda i: i < n, UF.roots())]) == 1 and "YES" or "NO")
+\end{lstlisting}\quad\\
+人を $[0,N)$ 、言語を $[N,N+M)$ で管理し、それぞれの人について話せる言語に辺を貼り、連結成分の数を数えれば良い。ただし、番号が $N$ 未満の根に絞らないと言語が残っていても判定されてしまうので注意。
 \end{exm}
 \end{document}
