@@ -2361,4 +2361,94 @@ for w, x, y, z in q:
 $2N$ 個の点を用意し、敷設クエリで各 $x_i,y_i$ について、$z_i$ が奇数の時 $x_i,y_i'$ と $x_i',y_i$ を、偶数のとき $x_i,y_i$ と $x_i',y_i'$ をそれぞれ結べば、判定クエリでは $x_i,y_i$ が同じ連結成分にあるか判定すればよい。
 \end{exm}
 
+\SS
+
+\begin{alg} {\bf 重み付きUnionFind} は、\upshape 通常のUnionFindに加え、辺の距離を保持するデータ構造。\\
+\begin{lstlisting}
+class WeightedUnionFind():
+    def __init__(self, n):
+        self.n = n
+        self.parents = [-1] * n
+        self.weight = [0] * n
+
+    def find(self, x):
+        if self.parents[x] < 0:
+            return x
+        else:
+            px = self.find(self.parents[x])
+            self.weight[x] += self.weight[self.parents[x]]
+            self.parents[x] = px
+            return px
+
+    def union(self, x, y, w):
+        w += self.weight[x] - self.weight[y]
+        x = self.find(x)
+        y = self.find(y)
+        if x == y:
+            return
+        if self.parents[x] > self.parents[y]:
+            x, y, w = y, x, -w
+        self.parents[x] += self.parents[y]
+        self.parents[y] = x
+        self.weight[y] = w
+        return
+
+    def weig(self, x):
+        self.find(x)
+        return self.weight[x]
+
+    def diff(self, x, y):
+        return self.weigh(y) - self.weigh(x)
+
+    # folding; cf.) UnionFind
+\end{lstlisting}\quad\\
+実際の実装では、Find での経路圧縮の際に差分の重みを累積和的に更新している。Union では根同士をつなぐので $w$ は修正が必要。また、swap操作の際には $w$ の符号は反転する。Weig は経路圧縮してから重みを返す。重み差分を返す Diff はそのままの実装。
+\end{alg}
+
+\SS
+
+\begin{exm}
+$N$ 人の人がいて、それぞれ数直線上の座標 $(x_i)$ に立っている。いま、人 $R_i$ は人 $L_i$ より距離 $D_i$ だけ右にいるという $M$ 個の情報が与えられる。これら全てに矛盾しないような座標の組が存在するか答えよ。$1\le N\le 10^5$, $0\le M\le 2\times 10^5$, $0\le D_i \le 10^4$. \quad\upshape ABC087 D - People on a Line\\
+\begin{lstlisting}
+(n, m), *q = [[*map(int, o.split())] for o in open(0)]
+UF = WeightedUnionFind(n + 1)
+for l, r, d in q:
+    if UF.same(l, r):
+        if d != abs(UF.diff(l, r)):
+            print("No"); exit()
+    else:
+        UF.union(l, r, d)
+print("Yes")
+\end{lstlisting}\quad\\
+実際に矛盾がないか調べていけばよい。矛盾がある場合前から見ていっても必ず誤りの判定がされるのでこれで十分。
+\end{exm}
+
+\SS
+
+\begin{exm}\upshape 複数テストケースが与えられる。0は入力の終わりを示す。それぞれのテストケースについて、$N$ 個の情報が与えられ、それぞれ \lstinline{"1 A = 10^x B"} という形をしており、単位Aと単位Bの大きさの比較である。情報が矛盾しないか判定せよ。単位は空白を含まないアルファベット小文字$1$〜$16$文字からなる。$1\le N\le 100$, $-100\le x\le 100$.\quad AOJ2207 - 無矛盾な単位系\\
+\begin{lstlisting}
+while 1:
+    n = int(input())
+    if n == 0:
+        exit()
+    Q, d = [], set()
+    while n:
+        _, a, _, p, b = input().split()
+        Q += (a, b, int(p[3:])),
+        d |= {a, b}
+        n -= 1
+    D = {c : e for e, c in enumerate(d)}
+    UF = WeightedUnionFind(len(d))
+    for a, b, p in Q:
+        a, b = D[a], D[b]
+        if UF.same(a, b):
+            if p != UF.diff(a, b):
+                print("No"); break
+        else:
+            UF.union(a, b, p)
+    else:
+        print("Yes")
+\end{lstlisting}\quad\\
+対数で考えることを除けば前の問題とほぼ同じ。文字列の処理が少し面倒...
+\end{exm}
 \end{document}

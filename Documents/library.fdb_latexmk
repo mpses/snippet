@@ -1,5 +1,5 @@
 # Fdb version 3
-["lualatex"] 1597754702 "library.tex" "library.pdf" "library" 1597754716
+["lualatex"] 1597769556 "library.tex" "library.pdf" "library" 1597769577
   "/Users/shun/Library/Fonts/A-OTF-FutoGoB101Pr6N-Bold.otf" 1549158019 7978928 f7d5d6275a7d5653d340fd6b97cfff5d ""
   "/Users/shun/Library/Fonts/A-OTF-RyuminPr6N-Light.otf" 1549158195 9791624 98441b5dfb8eba7d6856a87a5fb591e9 ""
   "/Users/shun/Library/texlive/2020/texmf-var/luatex-cache/generic-dev/fonts/otl/a-otf-futogob101pr6n-bold.luc" 1593498754 2491052 d4b000200b764a56e9d0a15e3fba4157 ""
@@ -221,11 +221,11 @@
   "/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1587915082 4814828 0dce0b19e005c2a7b2784567abb00307 ""
   "/usr/local/texlive/2020/texmf-var/web2c/luahbtex/lualatex.fmt" 1587915323 2691932 1544ba1e9cbe25cd83fa07944f48918b ""
   "img.png" 1596899110 61446 6b0389c53dabbe7702cea7ec6b828214 ""
-  "library.aux" 1597754713 3796 eff81ff21422d13b79e574914d6b4c1e "lualatex"
-  "library.tex" 1597754701 105101 f3673cf5797c2869ef2678d6d67390d9 ""
-  "library.toc" 1597754713 1211 cbeee5985c7bb5b06431c0f3895afa59 "lualatex"
+  "library.aux" 1597769575 3796 eff81ff21422d13b79e574914d6b4c1e "lualatex"
+  "library.tex" 1597769554 108590 f59bf75a88631fe4fef54aaf99ea5bc0 ""
+  "library.toc" 1597769575 1211 cbeee5985c7bb5b06431c0f3895afa59 "lualatex"
   (generated)
-  "library.log"
   "library.pdf"
-  "library.aux"
   "library.toc"
+  "library.aux"
+  "library.log"
