@@ -2240,7 +2240,7 @@ $s_{1i},s_{2i}$ を結んで得られるグラフの連結成分のうち数字�
 \begin{exm} $N$ 頂点 $M$ 辺の森が与えられる。頂点は $\bm{0{\rm -indexed}}$ \upshape で、辺は頂点 $x_i,y_i$ を結ぶ。各頂点には $a_i$ という値が決まっている。今、この森にいくつかの辺を張って木にすることを考える。ただし、頂点 $i,j$ を結ぶときコスト $a_i+a_j$ がかかり、さらに頂点は{\bf 一度しか選択できない}。 コストを最小化せよ。木にできないときは \lstinline{'Impossible'} と出力せよ。
 $1\le N\le 10^5$, $0\le M\le N-1$, $1\le a_i\le 10^9$.\quad APC001 D - Forest\\
 \begin{lstlisting}
-(n, m), a, *q = [[*map(int,o.split())] for o in open(0)]
+(n, m), a, *q = [[*map(int, o.split())] for o in open(0)]
 UF = UnionFind(n)
 k = (n - m - 1) * 2
 if k > n: exit(print("Impossible"))
@@ -2282,7 +2282,7 @@ $N-1$ 辺にするのが目標である。よって、はる辺数は $N-M-1$ �
 
 \begin{exm} $xy$ 座標平面上の第一象限に点 $(x_i,y_i)$ が重複なく $N$ 個ある。$(a, b), (a, d), (c, b), (c, d)$ のうち $3$ 箇所に点があるような整数 $a\ne c, b\ne d$ を選び、残りの $1$ 箇所に点を追加するという操作を行える限り繰り返す。この操作は有限回しか行えないことが証明できるが、操作回数の最大値はいくらか。$1\le N,x_i,y_i\le 10^5$. \upshape\quad ABC131 F - Must Be Rectangular!\\
 \begin{lstlisting}
-(n,), *q = [[*map(int,o.split())] for o in open(0)]
+(n,), *q = [[*map(int, o.split())] for o in open(0)]
 MAX = 10 ** 5 + 1
 UF = UnionFind(2 * MAX)
 for x, y in q:
@@ -2301,7 +2301,7 @@ print(sum(X * Y for X, Y in zip(cnt_x, cnt_y)) - n)
 
 \begin{exm} $N$ 個の駐車スペースと駐車スペース $u_i,v_i$ を結ぶ $M$ 本の道がある駐車場に、$N$ 人の人が順にやってくる。$i$ 番目の人は、駐車場の入り口から空いている駐車場と道を通って駐車スペース $i$ に車を駐めようとするが、たどり着くことができないときは帰ってしまう。駐車スペース $S$ が駐車場の入り口と繋がっているとき、駐車場に駐めることができる人の番号を順に出力せよ。$1\le N,M\le 2\times 10^5$.\quad\upshape ARC056 B - 駐車場\\
 \begin{lstlisting}
-(n, m, s), *q = [[*map(int,o.split())] for o in open(0)]
+(n, m, s), *q = [[*map(int, o.split())] for o in open(0)]
 from collections import*
 d = defaultdict(list)
 for u, v in q:
@@ -2319,4 +2319,46 @@ for i in ans[::-1]:
 \end{lstlisting}\quad\\
 まず、$S$ より番号が大きい人が駐めることはない。それ以外のとき、それぞれの人について自分の番号より大きい駐車場同士を結ぶ道しか通れないとしてよい。よって、番号 $S$ の人から逆順で見ていき、道をそれぞれ貼っていけばいい。そして作られたグラフにおいて入口と駐車スペースが同じ連結成分にあるとき駐めることができる。なお、駐車されなかったときは入口からたどり着く道がないときなので考慮に入れなくてよい。
 \end{exm}
+
+\SS
+
+\begin{exm} $N$ 個の都市がある。$K$ 本の道路と $L$ 本の鉄道が都市の間に伸びている。道路 $i$ は都市 $p_i,q_i$ を結び、鉄道 $j$ は都市 $r_i,s_i$ を結ぶ。それぞれの都市について、自分を含め道路と鉄道両方で到達できる都市の数を求めよ。$2\le N \le 2\times 10^5$, $1\le K,L\le 10^5$. \upshape\quad ABC049 D - 連結\\
+\begin{lstlisting}
+(n, k, l), *d = [[*map(int, o.split())] for o in open(0)]
+R, T = UnionFind(n), UnionFind(n)
+for p, q in d[:k]:
+    R.union(p - 1, q - 1)
+for r, s in d[k:]:
+    T.union(r - 1, s - 1)
+C = []
+for i in range(n):
+    C += (R.find(i), T.find(i)),
+from collections import*
+c = Counter(C)
+print(*[c[g] for g in C])
+\end{lstlisting}\quad\\
+道路と鉄道それぞれUnionFindを構築したあと、それぞれの都市について道路と鉄道について根を求めて、実際に記録していく。それぞれの都市について道路と鉄道両方について根が同じような都市の数を求めればよい。
+\end{exm}
+
+\SS
+
+\begin{exm} $N$ 個の街があり、最初道はない。今、整数 $w_i,x_i,y_i,z_i$ からなる $Q$ 個のクエリが時系列順に与えられる。$w_i = 1$ のとき、街 $x_i,y_i$ 間に長さ $z_i$ メートルの道路を敷設することを表し、$w_i = 2, z_i = 1$ のときその時点で街 $x_i,y_i$ を合計 {\bf 偶数} メートルで移動できるか質問することを表す。それ以外のクエリは与えられないので、後者のクエリに回答せよ。$1\le N,Q,z_i\le 10^5$. \upshape\quad ARC036 D - 偶数メートル\\
+\begin{lstlisting}
+(n, _), *q = [[*map(int, o.split())] for o in open(0)]
+UF = UnionFind(n * 2)
+for w, x, y, z in q:
+    x -= 1; y -= 1
+    if w == 1:
+        if z%2:
+            UF.union(x, y + n)
+            UF.union(y, x + n)
+        else:
+            UF.union(x, y)
+            UF.union(x + n, y + n)
+    else:
+        print("YES" if UF.same(x, y) else "NO")
+\end{lstlisting}\quad\\
+$2N$ 個の点を用意し、敷設クエリで各 $x_i,y_i$ について、$z_i$ が奇数の時 $x_i,y_i'$ と $x_i',y_i$ を、偶数のとき $x_i,y_i$ と $x_i',y_i'$ をそれぞれ結べば、判定クエリでは $x_i,y_i$ が同じ連結成分にあるか判定すればよい。
+\end{exm}
+
 \end{document}

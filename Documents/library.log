@@ -1,4 +1,4 @@
-This is LuaHBTeX, Version 1.12.0 (TeX Live 2020)  (format=lualatex 2020.4.27)  18 AUG 2020 16:19
+This is LuaHBTeX, Version 1.12.0 (TeX Live 2020)  (format=lualatex 2020.4.27)  18 AUG 2020 21:45
  restricted system commands enabled.
  file:line:error style messages enabled.
 **library.tex
@@ -1889,28 +1889,44 @@ Missing character: There is no ẞ (U+1E9E) in font [lmroman10-regular]:+tlig;!
 Removing  `ltj.process_input_buffer' from `process_input_buffer'.
 Inserting `ltj.listings_unicode' at position 1 in `process_input_buffer'.
 Inserting `ltj.process_input_buffer' at position 2 in `process_input_buffer'.
-Removing  `ltj.listings_unicode' from `process_input_buffer'. [70] (./library.aux)
+Removing  `ltj.listings_unicode' from `process_input_buffer'.
+LaTeX Font Info:    Kanji font shape `JY3/A-OTF-RyuminPr6N-Light.otf(0)/m/it' undefined
+(Font)              No change on input line 2325.
+Removing  `ltj.process_input_buffer' from `process_input_buffer'.
+Inserting `ltj.listings_unicode' at position 1 in `process_input_buffer'.
+Inserting `ltj.process_input_buffer' at position 2 in `process_input_buffer'. [70
+Missing character: There is no ẞ (U+1E9E) in font [lmroman10-regular]:+tlig;!
+]
+Removing  `ltj.listings_unicode' from `process_input_buffer'.
+LaTeX Font Info:    Kanji font shape `JY3/A-OTF-RyuminPr6N-Light.otf(0)/m/it' undefined
+(Font)              No change on input line 2345.
+Removing  `ltj.process_input_buffer' from `process_input_buffer'.
+Inserting `ltj.listings_unicode' at position 1 in `process_input_buffer'.
+Inserting `ltj.process_input_buffer' at position 2 in `process_input_buffer'. [71
+Missing character: There is no ẞ (U+1E9E) in font [lmroman10-regular]:+tlig;!
+]
+Removing  `ltj.listings_unicode' from `process_input_buffer'. [72] (./library.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 )
 
 Here is how much of LuaTeX's memory you used:
- 11355 strings out of 480991
+ 11356 strings out of 480991
  932687,794899 words of node,token memory allocated
- 76338 words of node memory still in use:
-   11 hlist, 2 vlist, 5 rule, 159 glue, 489 kern, 1 glyph, 20161 attribute, 5734 glue_spec, 1165 attribute_list, 1 write, 305 user_defined nodes
-   avail lists: 1:34,2:156308,3:228,4:14299,5:4666,6:73,7:15808,8:67,9:19457,10:55,11:892
- 28372 multiletter control sequences out of 65536+600000
+ 77623 words of node memory still in use:
+   11 hlist, 2 vlist, 5 rule, 165 glue, 491 kern, 1 glyph, 20365 attribute, 5891 glue_spec, 1177 attribute_list, 1 write, 309 user_defined nodes
+   avail lists: 1:34,2:156092,3:228,4:14295,5:4581,6:73,7:16167,8:67,9:19457,10:55,11:892
+ 28373 multiletter control sequences out of 65536+600000
  97 fonts using 90124355 bytes
  71i,12n,87p,1222b,844s stack positions out of 5000i,500n,10000p,200000b,100000s
 </usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmmono10-italic.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmromandemi10-regular.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmroman10-italic.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmroman10-bold.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmmono9-regular.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmmono10-regular.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmroman7-regular.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmroman12-regular.otf></Users/shun/Library/Fonts/A-OTF-RyuminPr6N-Light.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmroman10-regular.otf></Users/shun/Library/Fonts/A-OTF-FutoGoB101Pr6N-Bold.otf></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmbsy10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmb
 x10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfo
 nts/symbols/msbm10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm5.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/rsfs/rsfs10.pfb>
-Output written on library.pdf (70 pages, 745989 bytes).
+Output written on library.pdf (72 pages, 753176 bytes).
 
-PDF statistics: 375 PDF objects out of 1000 (max. 8388607)
- 247 compressed objects within 3 object streams
+PDF statistics: 382 PDF objects out of 1000 (max. 8388607)
+ 252 compressed objects within 3 object streams
  0 named destinations out of 1000 (max. 131072)
  1 words of extra memory for PDF output out of 10000 (max. 100000000)
 
