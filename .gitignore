@@ -1,4 +1,5 @@
 
 *.fls
 Documents/head.tex
+Documents/head.log
 .DS_Store
