@@ -2546,7 +2546,7 @@ for t, (a, b) in enumerate(q[:m], 1):
 for x, y, z in q[m+1:]:
     print(meg_bisect(0, m, lambda m: size2(x, y, m) >= z))
 \end{lstlisting}\quad\\
-辺を $1$ から時刻 $i$ に辺 $i$ を順に足していくと考える。すると、兄弟で訪れることのできる頂点がはじめて $z_i$ 個以上になったときの時刻が答えである。これには二分法を使えばよい。二分探索の実装で \lstinline{//} を \lstinline{>>} に変えておかないと TLE するので注意。また、兄弟がいる連結成分が同じかそうでないかで場合わけが必要。
+時刻 $i$ に辺 $i$ を順に足していくと考える。すると、兄弟で訪れることのできる頂点がはじめて $z_i$ 個以上になったときの時刻が答えで、二分法を使えばよい。二分探索の実装で \lstinline{//} を \lstinline{>>} にしないと TLE するので注意。また、兄弟がいる連結成分が同じかそうでないかで場合わけが必要。
 \end{exm}
 
 \SS
@@ -2571,7 +2571,7 @@ print(-sum(a))
 
 \SS
 
-\begin{exm} \upshape$N$ 件の日雇いアルバイトがあり、$i$ 件目の日雇いアルバイトを請けて働くと、その $A_i$ 日後に報酬 $B_i$ が得られる。今日から $M$ 日後まで $1$ 日 $1$ つまで選んで働くことができる。一度選んだものは選択できないとき、最終的な報酬を最大化せよ。$1\le N,M,A_i,\le 10^5$, $1\le B_i\le 10^4$　ABC137 D - Summer Vacation\\
+\begin{exm} \upshape$N$ 件の日雇いアルバイトがあり、$i$ 件目の日雇いアルバイトを請けて働くと、その $A_i$ 日後に報酬 $B_i$ が得られる。今日から $M$ 日後まで $1$ 日 $1$ つまで選んで働くことができる。一度選んだものは選択できないとき、最終的な報酬を最大化せよ。$1\le N,M,A_i,\le 10^5$, $1\le B_i\le 10^4$.ABC137 D - Summer Vacation\\
 \begin{lstlisting}
 (N, M), *t = [map(int, s.split()) for s in open(0)]
 q, z = [], 0
@@ -2581,12 +2581,30 @@ for a, b in t:
 for i in v[:M]:
     for j in i:
         heappush(q, -j)
-    if q:
-        z += -heappop(q)
+    z += -heappop(q) if q else 0
 print(z)
 \end{lstlisting}\quad\\
 $M$ 日後から遡って考えていくと、ヒープキューが使えそうとわかる。
 \end{exm}
 
-\SS
+\newpage
+
+\begin{exm}\upshape
+工場に $N$ 個の機械があり、最初 $a_i$ 秒でプレゼントを一個作る。しかし、機械はそれぞれ $1$ 回使うたびに劣化し、追加で $b_i$ 秒かかるようになる。複数の機械を同時に動かすことはできないので、プレゼント $K$ 個を作るのにかかる最小時間を求めよ。$1\le N,K\le 10^5$, $1\le a_i\le 10^9$, $0\le b_i\le 10^9$　CODE THANKS FESTIVAL 2017 C - Factory\\
+\begin{lstlisting}
+from heapq import*
+(n, k), *d = [[*map(int, o.split())] for o in open(0)]
+q = []
+for a, b in d:
+    heappush(q, (a, b))
+ans = 0
+for _ in [0] * k:
+    a, b = heappop(q)
+    ans += a
+    heappush(q, (a + b, b))
+print(ans)
+\end{lstlisting}\quad\\
+タプルを使って $b_i$ の情報を保持すると楽。
+\end{exm}
+
 \end{document}
