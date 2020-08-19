@@ -2363,7 +2363,7 @@ $2N$ 個の点を用意し、敷設クエリで各 $x_i,y_i$ について、$z_i
 
 \SS
 
-\begin{alg} {\bf 重み付きUnionFind} は、\upshape 通常のUnionFindに加え、辺の距離を保持するデータ構造。\\
+\begin{alg} {\bf 重み付きUnionFind} (WeightedUnionFind) は、\upshape 通常のUnionFindに加え、辺の距離を保持するデータ構造。\\
 \begin{lstlisting}
 class WeightedUnionFind():
     def __init__(self, n):
@@ -2451,4 +2451,142 @@ while 1:
 \end{lstlisting}\quad\\
 対数で考えることを除けば前の問題とほぼ同じ。文字列の処理が少し面倒...
 \end{exm}
+
+\SS
+
+\begin{defi}
+変更される際に変更前のバージョンを常に保持するデータ構造を、{\bf 永続データ構造} (Persistent Data Structure) という。全バージョンにアクセス可能で、最新版だけを変更可能なデータ構造を{\bf 半永続的 / 部分永続的} (partially persistent) という。全バージョンにアクセスも更新も可能なデータ構造を{\bf 全永続的 / 完全永続的} (fully persistent) という。最新版以外の2つのバージョンから新たなバージョンを作成・マージする操作があるなら、そのデータ構造を融合永続的 (confluently persistent) という。永続的でないデータ構造は短命 (ephemeral) であるという。
+\end{defi}
+
+\SS
+
+\begin{alg} {\bf 部分永続UnionFind} (Partially Persistent UnionFind) は、部分永続化されたUnionFindである。\\\upshape
+\begin{lstlisting}
+INF = 10**9
+from biesct import*
+class PPUnionFind():
+    def __init__(self, n):
+        self.n = n
+        self.parents = [-1] * n
+        self.time = [INF] * n
+        self.number_time = [[0] for _ in [None] * n]
+        self.number_dots = [[1] for _ in [None] * n]
+
+    def find(self, x, t):
+        while self.time[x] <= t:
+            x = self.parents[x]
+        return x
+
+    def union(self, x, y, t):
+        x = self.find(x, t)
+        y = self.find(y, t)
+        if x == y:
+            return 0
+        if self.parents[x] > self.parents[y]:
+            x, y = y, x
+        self.parents[x] += self.parents[y]
+        self.parents[y] = x
+        self.number_time[x] += [t]
+        self.number_dots[x] += [-self.parents[x]]
+        self.time[y] = t
+        return t
+
+    def size(self, x, t):
+        x = self.find(x, t)
+        return self.number_dots[x][bisect_left(self.number_time[x], t) - 1]
+
+    def whensame(self, x, y, t = 0):
+        if x == y:
+            return t
+        if self.time[x] == self.time[y] == INF:
+            return -1
+        if self.time[x] > self.time[y]:
+            x, y = y, x
+        return self.whensame(self.parents[x], y, self.time[x])
+
+    def same(x, y, t):
+        return self.find(x, t) == self.find(y, t)
+\end{lstlisting}\quad\\
+少し複雑になってしまったが、実装はさほど変わらない。基本的に行える操作は通常のUnionFindに「時刻$t$で」という条件を付け足しただけのもの。あまりに文献が少ないので自分で書いてみたが、「いつ同じ連結成分になるか」を示すwhensame()が特にとても重く時間があれば改修したい...
+\end{alg}
+
+\newpage
+
+\begin{exm} 集合 $\{1\},\{2\},\ldots,\{N\}$ が与えられる。時刻 $i$ に要素 $a_i$ を持つ集合と $b_i$ を持つ集合を結合するという操作を $M$ 回行う。クエリが $Q$ 個与えられるので、$j$ 回目のクエリでは要素 $x_j$ と要素 $y_j$ が同じ集合にはじめて属するのは何回目の操作後かを回答せよ。ただし最終的に同じ集合に属さない場合 $-1$ を出力せよ。$2\le N\le 10^5$, $0\le M\le 10^5$, $1\le Q\le 10^5$.\upshape\quad CODE THANKS FESTIVAL 2017 H - Union Sets\\
+\begin{lstlisting}
+# PyPy 564ms
+(n, m), *q = [[*map(int, o.split())] for o in open(0)]
+UF = PPUnionFind(n + 1)
+for t, (a, b) in enumerate(q[:m], 1):
+    UF.union(a, b, t)
+
+for x, y in q[m + 1:]:
+    print(UF.whensame(x, y))
+\end{lstlisting}\quad\\
+まさに操作を行うだけの問題。
+\end{exm}
+
+\SS
+
+\begin{exm} $N$ 頂点 $M$ 辺の連結無向グラフがあり、$i$ 番目の辺は頂点 $a_i,b_i$ を結んでいる。このグラフの上で、$Q$ 組の兄弟がスタンプラリーをする。$j$ 組目の兄弟について、最初、兄、弟はそれぞれ頂点 $x_j,y_j$ におり、兄弟でちょうど $z_j$ 個の頂点を訪れる。同じ頂点を兄弟ともに訪れても $1$ つと数える。兄または弟が通った辺の番号の最大値がスコアになる。それぞれの兄弟についてスコアの最小値を求めよ。$3\le N\le 10^5$, $N-1\le M\le 10^5$, $x_j<y_j$.\quad\upshape AGC002 D - Stamp Rally\\
+\begin{lstlisting}
+# PyPy 1607ms
+UF = PPUnionFind(n + 1)
+
+(n, m), *q = [[*map(int, o.split())] for o in open(0)]
+def size2(x, y, t):
+    a = UF.size(x, t)
+    if not UF.same(x, y, t):
+        a += UF.size(y, t)
+    return a
+
+for t, (a, b) in enumerate(q[:m], 1):
+    UF.union(a, b, t)
+
+for x, y, z in q[m+1:]:
+    print(meg_bisect(0, m, lambda m: size2(x, y, m) >= z))
+\end{lstlisting}\quad\\
+辺を $1$ から時刻 $i$ に辺 $i$ を順に足していくと考える。すると、兄弟で訪れることのできる頂点がはじめて $z_i$ 個以上になったときの時刻が答えである。これには二分法を使えばよい。二分探索の実装で \lstinline{//} を \lstinline{>>} に変えておかないと TLE するので注意。また、兄弟がいる連結成分が同じかそうでないかで場合わけが必要。
+\end{exm}
+
+\SS
+
+\begin{alg} {\bf 優先度付きキュー} (Priority queue) は最も優先度が高いものの取り出し、優先度の情報を持ったままの要素の追加を共に $O(\log N)$ で行えるようなデータ構造をいう。Pythonでは二分探索木 \lstinline{heapq} として最小値についてのみサポートされている。
+\end{alg}
+
+\SS
+
+\begin{exm} $N$ 個の買い物をすることを考える。$i$ 番目に買う品物は $A_i$ 円である。$M$ 枚の割引券があり、$X$ 円の品物を $Y$ 枚の割引券を使って買うと $\lfloor X/2^Y \rfloor$ 円で買うことができる。うまく割引券を割り振ると最小何円で全ての品物を買えるか。$1\le N,M\le 10^5$, $1\le A_i\le 10^9$. \upshape\quad ABC141 D - Powerful Discount Tickets\\
+\begin{lstlisting}
+from heapq import*
+n, m, *a = eval(",-".join(open(0).read().split()))
+a.sort()
+while m:
+    heappush(a, 0--heappop(a)//2)
+    m += 1
+print(-sum(a))
+\end{lstlisting}\quad\\
+まず、\lstinline{heapq} は最小値しか扱えないので符号を逆にして考える。また、空でないリストをヒープ化させるには \lstinline{sort} か \lstinline{heapify} が必要。\lstinline{0--b//2} は切り上げ演算（正負逆転で切り下げになる）。$M$ 個の割引券について、「最大の物を選んで $2$ で割る」という操作を繰り返せばいいことがわかる（正確な証明は煩雑なので省略するが、bitで考えると直感的）。
+\end{exm}
+
+\SS
+
+\begin{exm} \upshape$N$ 件の日雇いアルバイトがあり、$i$ 件目の日雇いアルバイトを請けて働くと、その $A_i$ 日後に報酬 $B_i$ が得られる。今日から $M$ 日後まで $1$ 日 $1$ つまで選んで働くことができる。一度選んだものは選択できないとき、最終的な報酬を最大化せよ。$1\le N,M,A_i,\le 10^5$, $1\le B_i\le 10^4$　ABC137 D - Summer Vacation\\
+\begin{lstlisting}
+(N, M), *t = [map(int, s.split()) for s in open(0)]
+q, z = [], 0
+v = [[] for _ in [None] * 10**5]
+for a, b in t:
+    v[a - 1] += b,
+for i in v[:M]:
+    for j in i:
+        heappush(q, -j)
+    if q:
+        z += -heappop(q)
+print(z)
+\end{lstlisting}\quad\\
+$M$ 日後から遡って考えていくと、ヒープキューが使えそうとわかる。
+\end{exm}
+
+\SS
 \end{document}
