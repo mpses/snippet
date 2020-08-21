@@ -2607,4 +2607,234 @@ print(ans)
 タプルを使って $b_i$ の情報を保持すると楽。
 \end{exm}
 
+\SS
+
+\begin{exm} \upshape $N$ 頂点の木がある。今、頂点 $1$ を選び、それ以降今まで選ばれた頂点と辺で結ばれている頂点のうち、まだ選ばれていない頂点を $1$ つ選ぶという操作を可能な限り繰り返す。選ばれた頂点の番号を順に並べた数列として構成可能な辞書順最小のものを出力せよ。$2\le N\le 10^5$.　Indeedなう 予選B C - 木\\
+\begin{lstlisting}
+(n,), *e = [[*map(int, o.split())] for o in open(0)]
+from collections import*
+d = defaultdict(list)
+used = defaultdict(lambda: False)
+for a, b in e:
+    d[a] += b,
+    d[b] += a,
+from heapq import*
+c, ans = [1], []
+for _ in [None] * n:
+    p = heappop(c)
+    ans += p,
+    used[p] = True
+    for i in d[p]:
+        if not used[i]:
+            heappush(c, i)
+print(*ans)
+\end{lstlisting}\quad\\
+こちらも実装するだけ。既に使われたかどうかを探索すると一回あたり $O(|c|)$ かかってしまうので専用の連想配列を持った。
+\end{exm}
+
+\SS
+
+\begin{exm} \upshape $1,2,3$ の形をしたケーキがそれぞれ $X,Y,Z$ 種類あり、それぞれの美味しさがそれぞれ数列 $A_i,B_i,C_i$ として与えられる。これらから $1,2,3$ の形ひとつずつ選ぶ方法は $XYZ$ 通りあるが、その美味しさの上位 $K$ 個を出力せよ。$1\le X,Y,X\le 10^3$, $1\le K\le \min (3000, XYZ)$, $1\le A_i,B_i,C_i \le 10^{10}$ 　ABC123 D - Cake 123\\
+\begin{lstlisting}
+(x, y, z, k), a, b, c = [[*map(int, o.split())] for o in open(0)]
+a.sort(); b.sort(); c.sort()
+
+h = [(-(a[-1] + b[-1] + c[-1]), -1, -1, -1)]
+s = set(h)
+
+from heapq import*
+def push(i, j, k):
+    global s, h
+    try:
+        t = (- (a[i] + b[j] + c[k]), i, j, k)
+    except IndexError:
+        return
+    if t not in s:
+        heappush(h, t)
+        s |= {t}
+
+for _ in [0] * k:
+    p, i, j, k = heappop(h)
+    print(-p)
+    push(i, j, k - 1)
+    push(i, j - 1, k)
+    push(i - 1, j, k)
+\end{lstlisting}
+\end{exm}
+
+\SS
+
+\begin{alg} フェニック木 または {\bf BIT} (Binary Indexed Tree) とは、要素 $i$ への値 $x$ の加算 / 区間和 $[0,i)$ の $2$ つを高速に計算できるものをいう。$1-{\rm indexed}$ で考えると、インデックス $i$ ではその $2^{l_i-1}$ 分の区間和の情報を持つ。ただしここで $l_i$ は $i$ の LSB (Least Significant Bit) であり $2$ 進数表現を右から見ていってはじめて $1$ が現れる桁数目をさす。\\\upshape
+\begin{lstlisting}
+class Bit:
+    # Binary Indexed Tree
+    def __init__(self, n):
+        self.size = n
+        self.tree = [0] * (n + 1)
+
+    def __iter__(self):
+        psum = 0
+        for i in range(self.size):
+            csum = self.sum(i + 1)
+            yield csum - psum
+            psum = csum
+        raise StopIteration()
+
+    def __str__(self):  # O(nlogn)
+        return str(list(self))
+
+    def sum(self, i):
+        # Σ [0, i)
+        if not (0 <= i <= self.size): raise ValueError("error!")
+        s = 0
+        while i > 0:
+            s += self.tree[i]
+            i -= i & -i
+        return s
+
+    def add(self, i, x):
+        if not (0 <= i < self.size): raise ValueError("error!")
+        i += 1
+        while i <= self.size:
+            self.tree[i] += x
+            i += i & -i
+
+    def __getitem__(self, key):
+        if not (0 <= key < self.size): raise IndexError("error!")
+        return self.sum(key + 1) - self.sum(key)
+
+    def __setitem__(self, key, value):
+        if not (0 <= key < self.size): raise IndexError("error!")
+        self.add(key, value - self[key])
+\end{lstlisting}\quad\\\label{bitlsb}
+実装上、区間和はLSBの {\bf 減算} とみなすことができる（$0$ になるまで続ける）。また、値の更新はLSBの {\bf 加算} とみなすことができる（$n$ になるまで続ける）。
+\end{alg}
+
+\SS
+
+\begin{lem} alg.\ref{bitlsb}\upshape において、LSB は \lstinline{k & -k} で求められる。
+\begin{proof} (証明) $k$ のLSBを $x$ とすると、$2$ 進数表現での右から $1\ldots x-1$ 番目は $0$ で右から $x$ 番目は $1$. よって、$\textasciitilde k$ の $2$ 進数表現での右から $1\ldots x-1$ 番目は $1$ で右から $x$ 番目は $0$. よって $-k=\textasciitilde k+1$ から繰り上がりを計算しながら $-k$ を求めると$2$ 進数表現での右から $1\ldots x-1$ 番目は $0$ で右から $x$ 番目は $1$. さらに $x$ より左側について $k$ と $-k$ のビットは全て異なる。よって、\lstinline{k & -k} で得られるビットは一意に $x$ 番目に定まる。
+\end{proof}
+\end{lem}
+
+\SS
+
+\begin{exm} 長さ $N$ の英小文字から成る文字列 $S$ が与えられるので、type1: $S$ の $i$ 文字を英小文字 $c$ に変更する、type2: $S$ の $l$ 文字目から $r$ 文字目までに現れる文字の種類数を答えなさい。$1\le N\le 5\times 10^5$, $1\le Q\le 2\times 10^4$.\upshape　ABC157 E - Simple String Queries\\
+\begin{lstlisting}
+# PyPy 600ms
+(n,), (s,), _, *q = map(str.split, open(0))
+*s, = s
+BIT = [Bit(int(n)) for _ in [0] * 26]
+for e, t in enumerate(s):
+    BIT[ord(t) - 97].add(e, 1)
+for a, b, c in q:
+    if a == "1":
+        i = int(b)
+        BIT[ord(s[i - 1]) - 97].add(i - 1, -1)
+        s[i - 1] = c
+        BIT[ord(c) - 97].add(i - 1, 1)
+    else:
+        l, r = int(b), int(c)
+        print(sum(BIT[i].sum(r) - BIT[i].sum(l - 1) > 0
+              for i in range(26)))
+\end{lstlisting}\quad\\
+実際に $26$ 本BITを持ってアルファベットごとに処理する。
+\end{exm}
+
+\SS
+
+\begin{exm}\upshape $N$ 個の色玉が一列に並んでいて、色は数列 $c_i$ で与えられる。クエリが $Q$ 個与えられるので $[l,r]$ での色の種類数を答えよ。$1\le N,Q\le 5\times 10^5$.　ABC174 F - Range Set Query\\
+\begin{lstlisting}
+(n, q), c, *d = [[*map(int, o.split())] for o in open(0)]
+
+d = sorted(enumerate(d), key = lambda x: x[1][1])
+
+B = Bit(n)
+ans = [-1] * q
+last = [-1] * (n + 1)
+ind = 0
+for i, (l, r) in d:
+    for j in range(ind, r):
+        if last[c[j]] != -1:
+            B.add(last[c[j]], -1)
+        B.add(j, 1)
+        last[c[j]] = j
+    ind = r
+    ans[i] = B.sum(r) - B.sum(l - 1)
+for a in ans:
+    print(a)
+\end{lstlisting}\quad\\
+区間を終端 $r$ でソートして「最後に出現した位置」を動かしていくイメージ。
+\end{exm}
+
+\SS
+
+\begin{alg} \upshape BIT上でいもす法を行うことができる。\\
+\begin{lstlisting}
+class BitImos:　
+    """
+    Query : O(log n)
+    """
+    def __init__(self, n):
+        self.bit = Bit(n + 1)
+
+    def add(self, s, t, x):
+        # [s, t) += x
+        self.bit.add(s, x)
+        self.bit.add(t, -x)
+
+    def get(self, i):
+        return self[i]
+
+    def __getitem__(self, key):
+        return self.bit.sum(key + 1)
+\end{lstlisting}
+\end{alg}
+
+\SS
+
+\begin{alg} \upshape BITを $2$ 本持つことで区間加算クエリにも対応することができる。\\
+\begin{lstlisting}
+class Bit2:
+    def __init__(self, n):
+        self.bit0 = Bit(n)
+        self.bit1 = Bit(n)
+
+    def add(self, l, r, x):
+        # [l, r) += x
+        self.bit0.add(l, -x * (l - 1))
+        self.bit1.add(l, x)
+        self.bit0.add(r, x * (r - 1))
+        self.bit1.add(r, -x)
+
+    def sum(self, l, r):
+        res = 0
+        res += self.bit0.sum(r) + self.bit1.sum(r) * (r - 1)
+        res -= self.bit0.sum(l) + self.bit1.sum(l) * (l - 1)
+        return res
+\end{lstlisting}
+\end{alg}
+
+\SS
+
+\begin{defi}
+ある列の{\bf 転倒数} (inversion number) とは、その整列性の測度である。厳密には数列 $A$ の転倒数は ${\rm inv}(A)=#\left\{(A_i,A_j)\mid i<j, A_i>A_j\right\}$ として定められる。
+\end{defi}
+\newpage
+\begin{alg} \upshape BIT を用いて転倒数を求めるアルゴリズムを愚直 $O(n^2)$ から $O(\max(A) + n \log n)$ に改善することができる。$(n=|A|)$\\
+\begin{lstlisting}
+def mergecount(A: list):
+    bit = Bit(max(A) + 1)
+    cnt = 0
+    for i, a in enumerate(A):
+        cnt += i - bit.sum(a + 1)
+        bit.add(a, 1)
+    return cnt
+\end{lstlisting}
+\end{alg}
+
+\SS
+
+\begin{exm}$N$ 人の人が並んでいる。
+\end{exm}
 \end{document}
