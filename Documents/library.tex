@@ -2830,11 +2830,47 @@ def mergecount(A: list):
         cnt += i - bit.sum(a + 1)
         bit.add(a, 1)
     return cnt
+\end{lstlisting}\quad\\
+自分より大きい要素の数をそれぞれ求めている。なお、この計算量は座標圧縮というテクニックを使うことで単純 $O(n\log n)$ に落とすことができる。
+\end{alg}
+
+\SS
+
+\begin{alg} {\bf 座標圧縮} とは値の大小関係を維持したまま最小限の整数に圧縮する操作。\\\upshape
+\begin{lstlisting}
+def compress(a: list) -> list:
+    d = {v : i for i, v in enumerate(sorted(set(a)))}
+    return [d[i] for i in a]
 \end{lstlisting}
 \end{alg}
 
 \SS
 
-\begin{exm}$N$ 人の人が並んでいる。
+\begin{defi} 隣接要素の比較交換を繰り返すソートを {\bf バブルソート}(bubble sort)という。
+\end{defi}
+
+\SS
+
+\begin{cor} \upshape ある列における転倒数はその列をバブルソートするのに発生するswap回数に等しい。
+\begin{proof} (証明) $1$ 回の swap で転倒数は $1$ 減少し、ソートが完了すると $0$ となるので自明。
+\end{proof}
+\end{cor}
+
+\newpage
+
+\begin{exm}\upshape $N$ 人の人が一列に並んでいる。この列を左から見た時、ある人について自分より左に並んでいる全ての人よりも身長 $H_i$ が高い場合に限り見ることが出来るので、全員が見えるように隣り合う人と入れ替わることを繰り返し並び替える時のコストの合計を求めよ。ただし $1$ 回の入れ替わりでのコストは $2$ 人のうち低い方の身長となる。また、全員が見えるような並び替えが不可能な時は $-1$ と出力せよ。 $1\le N\le10^5, 1\le H_i\le 10^8$. Indeedなう Final-B E - Line up!\\
+\begin{lstlisting}
+def mergecount_(A: list):
+    bit = Bit(n + 1)
+    cnt = 0
+    for i, (h, d) in enumerate(zip(A, compress(A))):
+        cnt += h * (i - bit.sum(d + 1))
+        bit.add(d, 1)
+    return cnt
+
+n, *h = map(int, open(0).read().split())
+print(-1 if len(set(h)) != n else mergecount_(h))
+\end{lstlisting}\quad\\
+重複する要素がある時は不可能。それ以外の時、座標圧縮をした上で転倒数のアルゴリズムを改造すれば求められる。
 \end{exm}
 \end{document}
