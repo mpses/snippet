@@ -2873,4 +2873,150 @@ print(-1 if len(set(h)) != n else mergecount_(h))
 \end{lstlisting}\quad\\
 重複する要素がある時は不可能。それ以外の時、座標圧縮をした上で転倒数のアルゴリズムを改造すれば求められる。
 \end{exm}
+
+\SS
+
+\begin{alg} {\bf BIT上での二分探索}\\\upshape
+\begin{lstlisting}
+class Bit:
+    def __init__(self, a):
+        if hasattr(a, "__iter__"):
+            le = len(a)
+            self.n = 1 << le.bit_length()
+            self.values = values = [0] * (self.n + 1)
+            values[1:le+1] = a[:]
+            for i in range(1, self.n):
+                values[i + (i & -i)] += values[i]
+        elif isinstance(a, int):
+            self.n = 1 << a.bit_length()
+            self.values = [0] * (self.n + 1)
+        else:
+            raise TypeError
+
+    def add(self, i, val):
+        n, values = self.n, self.values
+        while i <= n:
+            values[i] += val
+            i += i & -i
+
+    def sum(self, i):  # (0, i]
+        values = self.values
+        res = 0
+        while i > 0:
+            res += values[i]
+            i -= i & -i
+        return res
+
+    def bisect_left(self, v):
+        n, values = self.n, self.values
+        if v > values[n]:
+            return None
+        i, step = 0, n >> 1
+        while step:
+            if values[i + step] < v:
+                i += step
+                v -= values[i]
+            step >>= 1
+        return i + 1
+\end{lstlisting}\quad\\
+この実装では \lstinline{n} を \lstinline{le} を超える最小の $2$ 冪（\lstinline{1 << le.bit_length()}）にし\lstinline{len(values)} を $2$ 冪 $+ 1$ にすることで二分探索の条件を減らしている。また\lstinline{values} の $0$ 番目は使っていない。\lstinline{bisect_left(v)} で \lstinline{sum(i)} が \lstinline{v} 以上になる最小の \lstinline{i} を求める。
+\end{alg}
+
+\newpage
+
+\begin{exm} \upshape 空集合 $S$ があるので、$Q$ 個のクエリを処理しなさい。$T=1$ のとき整数 $X$ を $S$ に追加し、$T=2$ のとき $S$ で $X$ 番目に小さい数を答えそれを削除しなさい。$1\le Q,X\le 2\times10^5$\\ARC033 C - データ構造\\
+\begin{lstlisting}
+_, *Q = [[*map(int, o.split())] for o in open(0)]
+
+bit = Bit(200000)
+
+for t, x in Q:
+    if t == 1:
+        bit.add(x, 1)
+    else:
+        key = bit.bisect_left(x)
+        print(key)
+        bit.add(key, -1)
+\end{lstlisting}\quad\\
+制約から実際に $X$ に対する BIT を構築して操作するだけ。
+\end{exm}
+
+\SS
+
+\begin{defi} 二分木 (binary tree) は、データ構造のひとつで、根付き木構造の中であるノードが持つ子の数が高々 $2$ であるものをいう。全ての葉が同じ「深さ」を持つ二分木を完全二分木 (perfect binary tree) という。
+\end{defi}
+
+\SS
+
+\begin{defi} 集合 $S$ における閉じた演算 $*$ が与えられ、これが結合律をみたしかつ単位元 $e$ を持つとき、組 $(S,*,e)$ あるいは代数系 $\langle S, * \rangle$ は {\bf モノイド} (monoid) であるという。
+\end{defi}
+
+\newpage
+
+\begin{alg} \upshape {\bf セグメント木} (Segment Tree) は、完全二分木の一つ。\\
+\begin{lstlisting}
+class SegmentTree(object):
+    __slots__ = ["elem_size", "tree", "default", "op", "real_size"]
+
+    def __init__(self, a, default = float("inf"), op: "func" = min):
+        self.default = default
+        self.op = op
+        if hasattr(a, "__iter__"):
+            self.real_size = len(a)
+            self.elem_size = elem_size = 1 << (self.real_size-1).bit_length()
+            self.tree = tree = [default] * (elem_size * 2)
+            tree[elem_size : elem_size + self.real_size] = a
+            for i in range(elem_size - 1, 0, -1):
+                tree[i] = op(tree[i << 1], tree[(i << 1) + 1])
+        elif isinstance(a, int):
+            self.real_size = a
+            self.elem_size = elem_size = 1 << (self.real_size-1).bit_length()
+            self.tree = [default] * (elem_size * 2)
+        else:
+            raise TypeError
+
+    def get_value(self, x: int, y: int) -> int:   # [x, y)
+        l, r = x + self.elem_size, y + self.elem_size
+        tree, result, op = self.tree, self.default, self.op
+        while l < r:
+            if l & 1:
+                result = op(tree[l], result)
+                l += 1
+            if r & 1:
+                r -= 1
+                result = op(tree[r], result)
+            l, r = l >> 1, r >> 1
+        return result
+
+    def __setitem__(self, i: int, value: int) -> None:
+        k = self.elem_size + i
+        op, tree = self.op, self.tree
+        tree[k] = value
+        while k > 1:
+            k >>= 1
+            tree[k] = op(tree[k << 1], tree[(k << 1) + 1])
+
+    def __getitem__(self, i):
+        return self.tree[i + self.elem_size]
+
+    def debug(self):
+        print(self.tree[self.elem_size : self.elem_size + self.real_size])
+\end{lstlisting}\quad\\
+\lstinline{__slots__} は高速化用。\lstinline{op} には二項演算関数を与える。\lstinline{get_value} では半開区間 $[x,y)$ に \lstinline{op} を適用し続けた結果を返す。完全二分木を保持するので、計算量は $\displaystyle\sum_{i=0}^{\infty} \frac{n}{2^i} \le 2N$ より空間 $O(N)$. クエリは $O(a \log N)$ で、これは木の高さが約 $\log N$ で各深さで選ばれるノードが高々 $2$ 個であることから従う。ただし与えた演算に $O(a)$ かかるとき。なお、セグ木に乗せる代数系はモノイドであれば十分である。これは、区間の併合に結合則を要求することと、初期化に単位元を要求することからわかる。なお、上の実装ではデフォルトを Range Minimum Query (RmQ) にしており、これはモノイド $\langle \mathbb{R}, \min \rangle$ におけるセグ木である。単位元は $\infty$ とすればよい。
+\end{alg}
+
+\SS
+
+\begin{exm}\upshape 東西長さ $L$ の廊下がある。この廊下を全て照らすために $N$ 本の蛍光灯のうちいくつかを使う。それぞれ西から $l_i$ 〜 $r_i$ の位置を照らすことができ、設置にコスト $c_i$ かかる。コストを最小化せよ。$1\le N,L,C_i\le 10^5$　ARC026 C - 蛍光灯\\
+\begin{lstlisting}
+(N, L), *d = [[*map(int, o.split())] for o in open(0)]
+d.sort()
+dp = [0] + [float("inf")] * L
+dp = SegmentTree(dp)
+for l, r, c in d:
+    dp[r] = min(dp[r], dp.get_value(l, r + 1) + c)
+print(dp[L])
+\end{lstlisting}\quad\\
+$dp[i] \coloneqq i$ まで照らすのに使う最小コスト　とする。すると $dp[r]$ の最小値更新は $[l,r]$ での最小値に $c_i$ を足したものに行っていけばよい。半開区間に注意してセグ木を使う。
+\end{exm}
 \end{document}
