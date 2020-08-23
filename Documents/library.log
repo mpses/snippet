@@ -1,4 +1,4 @@
-This is LuaHBTeX, Version 1.12.0 (TeX Live 2020)  (format=lualatex 2020.4.27)  23 AUG 2020 01:37
+This is LuaHBTeX, Version 1.12.0 (TeX Live 2020)  (format=lualatex 2020.4.27)  23 AUG 2020 16:17
  restricted system commands enabled.
  file:line:error style messages enabled.
 **library.tex
@@ -2218,28 +2218,96 @@ Inserting `ltj.listings_unicode' at position 1 in `process_input_buffer'.
 Inserting `ltj.process_input_buffer' at position 2 in `process_input_buffer'.
 Removing  `ltj.listings_unicode' from `process_input_buffer'. [92
 Missing character: There is no ẞ (U+1E9E) in font [lmroman10-regular]:+tlig;!
-] [93] (./library.aux)
+]
+LaTeX Font Info:    Kanji font shape `JY3/A-OTF-RyuminPr6N-Light.otf(0)/m/it' undefined
+(Font)              No change on input line 3025.
+Removing  `ltj.process_input_buffer' from `process_input_buffer'.
+Inserting `ltj.listings_unicode' at position 1 in `process_input_buffer'.
+Inserting `ltj.process_input_buffer' at position 2 in `process_input_buffer'.
+Removing  `ltj.listings_unicode' from `process_input_buffer'.
+LaTeX Font Info:    Kanji font shape `JY3/A-OTF-RyuminPr6N-Light.otf(0)/m/it' undefined
+(Font)              No change on input line 3039.
+LaTeX Font Info:    Kanji font shape `JY3/A-OTF-RyuminPr6N-Light.otf(0)/m/it' undefined
+(Font)              No change on input line 3044.
+Removing  `ltj.process_input_buffer' from `process_input_buffer'.
+Inserting `ltj.listings_unicode' at position 1 in `process_input_buffer'.
+Inserting `ltj.process_input_buffer' at position 2 in `process_input_buffer'.
+Removing  `ltj.listings_unicode' from `process_input_buffer'.
+Removing  `ltj.process_input_buffer' from `process_input_buffer'.
+Inserting `ltj.listings_unicode' at position 1 in `process_input_buffer'.
+Inserting `ltj.process_input_buffer' at position 2 in `process_input_buffer'.
+Removing  `ltj.listings_unicode' from `process_input_buffer'.
+./library.tex:3051: Undefined control sequence.
+l.3051 \newapage
+              
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+LaTeX Font Info:    Kanji font shape `JY3/A-OTF-RyuminPr6N-Light.otf(0)/m/it' undefined
+(Font)              No change on input line 3052.
+[93
+Missing character: There is no ẞ (U+1E9E) in font [lmroman10-regular]:+tlig;!
+Missing character: There is no ẞ (U+1E9E) in font [lmroman10-regular]:+tlig;!
+Missing character: There is no ẞ (U+1E9E) in font [lmroman10-regular]:+tlig;!
+Missing character: There is no ẞ (U+1E9E) in font [lmroman10-regular]:+tlig;!
+Missing character: There is no ẞ (U+1E9E) in font [lmroman10-regular]:+tlig;!
+]
+Removing  `ltj.process_input_buffer' from `process_input_buffer'.
+Inserting `ltj.listings_unicode' at position 1 in `process_input_buffer'.
+Inserting `ltj.process_input_buffer' at position 2 in `process_input_buffer'.
+Removing  `ltj.listings_unicode' from `process_input_buffer'. [94]
+LaTeX Font Info:    Kanji font shape `JY3/A-OTF-RyuminPr6N-Light.otf(0)/m/it' undefined
+(Font)              No change on input line 3080.
+Removing  `ltj.process_input_buffer' from `process_input_buffer'.
+Inserting `ltj.listings_unicode' at position 1 in `process_input_buffer'.
+Inserting `ltj.process_input_buffer' at position 2 in `process_input_buffer'.
+Removing  `ltj.listings_unicode' from `process_input_buffer'. [95]
+LaTeX Font Info:    Kanji font shape `JY3/A-OTF-RyuminPr6N-Light.otf(0)/m/it' undefined
+(Font)              No change on input line 3118.
+Removing  `ltj.process_input_buffer' from `process_input_buffer'.
+Inserting `ltj.listings_unicode' at position 1 in `process_input_buffer'.
+Inserting `ltj.process_input_buffer' at position 2 in `process_input_buffer'.
+Removing  `ltj.listings_unicode' from `process_input_buffer'.
+Removing  `ltj.process_input_buffer' from `process_input_buffer'.
+Inserting `ltj.listings_unicode' at position 1 in `process_input_buffer'.
+Inserting `ltj.process_input_buffer' at position 2 in `process_input_buffer'.
+Removing  `ltj.listings_unicode' from `process_input_buffer'.
+Removing  `ltj.process_input_buffer' from `process_input_buffer'.
+Inserting `ltj.listings_unicode' at position 1 in `process_input_buffer'.
+Inserting `ltj.process_input_buffer' at position 2 in `process_input_buffer'. [96] [97] [98] [99] [100] [101]
+Removing  `ltj.listings_unicode' from `process_input_buffer'.
+LaTeX Font Info:    Kanji font shape `JY3/A-OTF-RyuminPr6N-Light.otf(0)/m/it' undefined
+(Font)              No change on input line 3347.
+Removing  `ltj.process_input_buffer' from `process_input_buffer'.
+Inserting `ltj.listings_unicode' at position 1 in `process_input_buffer'.
+Inserting `ltj.process_input_buffer' at position 2 in `process_input_buffer'. [102
+Missing character: There is no ẞ (U+1E9E) in font [lmroman10-regular]:+tlig;!
+] [103] [104]
+Removing  `ltj.listings_unicode' from `process_input_buffer'. [105] (./library.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 )
 
 Here is how much of LuaTeX's memory you used:
- 11411 strings out of 480991
- 932687,794899 words of node,token memory allocated
- 93332 words of node memory still in use:
-   11 hlist, 2 vlist, 5 rule, 205 glue, 522 kern, 1 glyph, 22390 attribute, 8045 glue_spec, 1300 attribute_list, 1 write, 361 user_defined nodes
-   avail lists: 1:34,2:171909,3:228,4:15887,5:9469,6:80,7:21381,8:67,9:20994,10:55,11:983
- 28428 multiletter control sequences out of 65536+600000
+ 11427 strings out of 480991
+ 1165860,794899 words of node,token memory allocated
+ 101988 words of node memory still in use:
+   11 hlist, 2 vlist, 5 rule, 209 glue, 529 kern, 1 glyph, 22846 attribute, 9554 glue_spec, 1330 attribute_list, 1 write, 380 user_defined nodes
+   avail lists: 1:34,2:217665,3:228,4:19410,5:9871,6:84,7:26550,8:67,9:23076,10:55,11:1085
+ 28444 multiletter control sequences out of 65536+600000
  97 fonts using 90124355 bytes
- 71i,12n,87p,1222b,846s stack positions out of 5000i,500n,10000p,200000b,100000s
+ 71i,12n,87p,1222b,896s stack positions out of 5000i,500n,10000p,200000b,100000s
 </usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmmono10-italic.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmromandemi10-regular.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmroman10-italic.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmroman10-bold.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmmono9-regular.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmmono10-regular.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmroman7-regular.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmroman12-regular.otf></Users/shun/Library/Fonts/A-OTF-RyuminPr6N-Light.otf></usr/local/texlive/2020/texmf-dist/fonts/opentype/public/lm/lmroman10-regular.otf></Users/shun/Library/Fonts/A-OTF-FutoGoB101Pr6N-Bold.otf></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmbsy10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmb
 x10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfo
 nts/symbols/msbm10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm5.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/rsfs/rsfs10.pfb>
-Output written on library.pdf (93 pages, 843652 bytes).
+Output written on library.pdf (105 pages, 894057 bytes).
 
-PDF statistics: 447 PDF objects out of 1000 (max. 8388607)
- 296 compressed objects within 3 object streams
+PDF statistics: 487 PDF objects out of 1000 (max. 8388607)
+ 323 compressed objects within 4 object streams
  0 named destinations out of 1000 (max. 131072)
  1 words of extra memory for PDF output out of 10000 (max. 100000000)
 

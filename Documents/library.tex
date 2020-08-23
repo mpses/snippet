@@ -3008,7 +3008,7 @@ class SegmentTree(object):
 \SS
 
 \begin{exm}\upshape 東西長さ $L$ の廊下がある。この廊下を全て照らすために $N$ 本の蛍光灯のうちいくつかを使う。それぞれ西から $l_i$ 〜 $r_i$ の位置を照らすことができ、設置にコスト $c_i$ かかる。コストを最小化せよ。$1\le N,L,C_i\le 10^5$　ARC026 C - 蛍光灯\\
-\begin{lstlisting}
+\begin{lstlisting}[frame = none]
 (N, L), *d = [[*map(int, o.split())] for o in open(0)]
 d.sort()
 dp = [0] + [float("inf")] * L
@@ -3019,4 +3019,454 @@ print(dp[L])
 \end{lstlisting}\quad\\
 $dp[i] \coloneqq i$ まで照らすのに使う最小コスト　とする。すると $dp[r]$ の最小値更新は $[l,r]$ での最小値に $c_i$ を足したものに行っていけばよい。半開区間に注意してセグ木を使う。
 \end{exm}
+
+\SS
+
+\begin{alg} \upshape モノイドの元として (index, value) を使うと index も取得できるようになる。\\
+\begin{lstlisting}
+S = SegmentTree(list(enumerate(A)),
+                  (-1, float("inf")),
+                  lambda x, y: min(x, y, key = lambda z: z[1]))
+\end{lstlisting}
+\end{alg}
+
+\SS
+
+遅延セグ木は Python では重すぎて諦めました...
+
+\SS
+
+\begin{defi} 集合に重複の要素を加えた概念を {\bf 多重集合} (multiset) という。
+\end{defi}
+
+\SS
+
+\begin{defi} 木の高さ（根からの階層の数）を自動的にできるだけ小さく維持しようとするような二分探索木を {\bf 平衡二分探索木} という。
+\end{defi}
+
+\SS
+
+C++ には \lstinline{set}（内部的にソートされる集合）や \lstinline{multiset}（内部的にソートされる多重集合）が標準で平衡二分探索木で実装されており、競技プログラミングでもそれを前提とした問題が多くある。しかし残念ながらPythonにそのようなデータ構造はなく、一方自己実装したところで往々にして複雑なものになり重くなってしまう。これを解決するには前述の通り（場合によって座標圧縮をした後）BITやセグ木上の二分探索で解決できることが多いが、他の解決法を考える。
+
+\newapage
+\begin{alg}\quad\\\upshape
+\begin{lstlisting}
+from heapq import*
+from collections import defaultdict
+class hpq:
+    def __init__(self):
+        self.p, self.q, self.c = [], [], defaultdict(lambda: 0)
+
+    def insert(self, x):  # O(log n)
+        self.c[x] += 1
+        heappush(self.p, x)
+
+    def erase(self, x):  # O(log n)
+        if not self.c[x]: return 1
+        self.c[x] -= 1
+        heappush(self.q, x)
+
+    def min(self):
+        while self.q and self.p[0] == self.q[0]:  # O(log n)
+            heappop(self.p)
+            heappop(self.q)
+        return -1 if not self.p else self.p[0]
+\end{lstlisting}\quad\\
+ここでは $\min$ を必要とする例で、$2$ つの優先度付きキューで管理する。現時点での最小値を削除するのでないかぎり、削除を後回しにしても最小値の結果には影響しない。ここで、後回し用の優先度付きキュー $q$ を作り削除クエリはここに突っ込んでおく。最小値を返す際、現時点での最小値 $x$ を削除する必要があるかどうかを確かめる。$x$ が $q$ にあるとすると位置は先頭なので、$p_0 = q_0$ なら後回しにしていた削除を行う必要がある。こうして更新された最小値もまた削除する必要があるかもしれないので、削除されていない本当の最小値が確定するまでこれを繰り返す。各要素は最大 $1$ 回しか削除されないのでみなし計算量は $O(\log n)$.
+\end{alg}
+
+\newpage
+
+\begin{alg}\quad\\\upshape
+\begin{lstlisting}
+from collections import defaultdict
+class sts:
+    def __init__(self):
+        self.s, self.curmin, self.flag = set(), float("inf"), False
+        self.c, self.l = defaultdict(lambda: 0), 0
+
+    def insert(self, x):  # O(1)
+        self.s.add(x)
+        self.c[x] += 1
+        self.l += 1
+        if x <= self.curmin:
+            self.curmin = x
+            self.flag = False
+
+    def erase(self, x):  # O(1)
+        if not self.c[x]: return 1
+        self.s.remove(x)
+        self.c[x] -= 1
+        self.l -= 1
+        if x == self.curmin:
+            self.flag = True
+
+    def min(self):  # worst O(n)
+        if not self.l:
+            self.curmin = -1
+            self.flag = False
+        elif self.flag:
+            curmin = min(self.s)
+            self.flag = False
+        return curmin
+\end{lstlisting}\quad\\
+こちらは集合を使うことで、なるべく結果を保存し、無駄な最小値計算を最大限抑えることで、クエリ $1$ 回当たりの平均計算量をなるべく抑える。
+\end{alg}
+
+\newpage
+
+\begin{alg} \upshape そもそも C++ の \lstinline{set} や \lstinline{multiset} のラッパーを書けばよいという話がある。 \\
+\begin{lstlisting}
+# set
+import os
+import sys
+
+if sys.argv[-1] == "ONLINE_JUDGE":
+    code_cppset = r"""
+#include <Python.h>
+#include <vector>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace std;
+using namespace __gnu_pbds;
+const static auto comp_pyobj = [](PyObject* const & lhs, PyObject* const & rhs){
+    return Py_TYPE(lhs)->tp_richcompare(lhs, rhs, Py_LT) == Py_True;
+};
+using pb_set = tree<
+    PyObject*,
+    null_type,
+    decltype(comp_pyobj),
+    rb_tree_tag,
+    tree_order_statistics_node_update
+>;
+
+struct Set4PyObject{
+    pb_set st;
+    Set4PyObject() : st(comp_pyobj) {}
+    Set4PyObject(vector<PyObject*>& vec) : st(vec.begin(), vec.end(), comp_pyobj) {}
+    ~Set4PyObject(){
+        for(PyObject* const & p : st){
+            Py_DECREF(p);
+        }
+    }
+    bool add(PyObject* x){
+        if(st.insert(x).second){
+            Py_INCREF(x);
+            return true;
+        }else{
+            return false;
+        }
+    }
+    void remove(PyObject* x){
+        auto it = st.find(x);
+        Py_DECREF(*it);
+        st.erase(it);
+    }
+    PyObject* search_higher_equal(PyObject* x) const {
+        return *st.lower_bound(x);
+    }
+    PyObject* min() const {
+        return *st.begin();
+    }
+    PyObject* max() const {
+        return *st.rbegin();
+    }
+    PyObject* pop_min(){
+        auto it = st.begin();
+        PyObject* res = *it;
+        st.erase(it);
+        return res;
+    }
+    PyObject* pop_max(){
+        auto it = st.rbegin();
+        PyObject* res = *it;
+        st.erase(it);
+        return res;
+    }
+    /// 以下は g++ 拡張 ///
+    PyObject* getitem(const long& idx) const {
+        return *st.find_by_order(idx);
+    }
+    PyObject* pop(const long& idx){
+        auto it = st.find_by_order(idx);
+        st.erase(it);
+        return *it;
+    }
+    long index(PyObject* x){
+        return st.order_of_key(x);
+    }
+};
+
+void Set4PyObject_free(PyObject *obj){
+    Set4PyObject* const p = (Set4PyObject*)PyCapsule_GetPointer(obj, "Set4PyObjectPtr");
+    delete p;
+}
+PyObject* Set4PyObject_construct(PyObject* self, PyObject* args){
+    Set4PyObject* st = new Set4PyObject();
+    return PyCapsule_New((void*)st, "Set4PyObjectPtr", Set4PyObject_free);
+}
+PyObject* Set4PyObject_construct_from_list(PyObject* self, PyObject* args){
+    PyObject* lst;
+    if(!PyArg_ParseTuple(args, "O", &lst)) return NULL;
+    int siz;
+    if(PyList_Check(lst)) siz = PyList_GET_SIZE(lst);
+    else if(PyTuple_Check(lst)) siz = PyTuple_GET_SIZE(lst);
+    else return NULL;
+    vector<PyObject*> vec(siz);
+    for(int i=0; i<siz; i++){
+        vec[i] = PyList_Check(lst) ? PyList_GET_ITEM(lst, i) : PyTuple_GET_ITEM(lst, i);
+        Py_INCREF(vec[i]);
+    }
+    Set4PyObject* st = new Set4PyObject(vec);
+    return PyCapsule_New((void*)st, "Set4PyObjectPtr", Set4PyObject_free);
+}
+PyObject* Set4PyObject_add(PyObject* self, PyObject* args){
+    PyObject *stCapsule, *x;
+    if(!PyArg_ParseTuple(args, "OO", &stCapsule, &x)) return NULL;
+    Set4PyObject* st = (Set4PyObject*)PyCapsule_GetPointer(stCapsule, "Set4PyObjectPtr");
+    st->add(x);
+    return Py_BuildValue("");
+}
+PyObject* Set4PyObject_remove(PyObject* self, PyObject* args){
+    PyObject *stCapsule, *x;
+    if(!PyArg_ParseTuple(args, "OO", &stCapsule, &x)) return NULL;
+    Set4PyObject* st = (Set4PyObject*)PyCapsule_GetPointer(stCapsule, "Set4PyObjectPtr");
+    st->remove(x);
+    return Py_BuildValue("");
+}
+PyObject* Set4PyObject_search_higher_equal(PyObject* self, PyObject* args){
+    PyObject *stCapsule, *x;
+    if(!PyArg_ParseTuple(args, "OO", &stCapsule, &x)) return NULL;
+    Set4PyObject* st = (Set4PyObject*)PyCapsule_GetPointer(stCapsule, "Set4PyObjectPtr");
+    PyObject* res = st->search_higher_equal(x);
+    return Py_BuildValue("O", res);
+}
+PyObject* Set4PyObject_min(PyObject* self, PyObject* args){
+    PyObject *stCapsule;
+    if(!PyArg_ParseTuple(args, "O", &stCapsule)) return NULL;
+    Set4PyObject* st = (Set4PyObject*)PyCapsule_GetPointer(stCapsule, "Set4PyObjectPtr");
+    PyObject* res = st->min();
+    return Py_BuildValue("O", res);
+}
+PyObject* Set4PyObject_max(PyObject* self, PyObject* args){
+    PyObject *stCapsule;
+    if(!PyArg_ParseTuple(args, "O", &stCapsule)) return NULL;
+    Set4PyObject* st = (Set4PyObject*)PyCapsule_GetPointer(stCapsule, "Set4PyObjectPtr");
+    PyObject* res = st->max();
+    return Py_BuildValue("O", res);
+}
+PyObject* Set4PyObject_pop_min(PyObject* self, PyObject* args){
+    PyObject *stCapsule;
+    if(!PyArg_ParseTuple(args, "O", &stCapsule)) return NULL;
+    Set4PyObject* st = (Set4PyObject*)PyCapsule_GetPointer(stCapsule, "Set4PyObjectPtr");
+    PyObject* res = st->pop_min();
+    return res;  // 参照カウントを増やさない
+}
+PyObject* Set4PyObject_pop_max(PyObject* self, PyObject* args){
+    PyObject *stCapsule;
+    if(!PyArg_ParseTuple(args, "O", &stCapsule)) return NULL;
+    Set4PyObject* st = (Set4PyObject*)PyCapsule_GetPointer(stCapsule, "Set4PyObjectPtr");
+    PyObject* res = st->pop_max();
+    return res;  // 参照カウントを増やさない
+}
+PyObject* Set4PyObject_getitem(PyObject* self, PyObject* args){
+    PyObject *stCapsule;
+    long idx;
+    if(!PyArg_ParseTuple(args, "Ol", &stCapsule, &idx)) return NULL;
+    Set4PyObject* st = (Set4PyObject*)PyCapsule_GetPointer(stCapsule, "Set4PyObjectPtr");
+    PyObject* res = st->getitem(idx);
+    return Py_BuildValue("O", res);
+}
+PyObject* Set4PyObject_pop(PyObject* self, PyObject* args){
+    PyObject *stCapsule;
+    long idx;
+    if(!PyArg_ParseTuple(args, "Ol", &stCapsule, &idx)) return NULL;
+    Set4PyObject* st = (Set4PyObject*)PyCapsule_GetPointer(stCapsule, "Set4PyObjectPtr");
+    PyObject* res = st->pop(idx);
+    return res;  // 参照カウントを増やさない
+}
+PyObject* Set4PyObject_index(PyObject* self, PyObject* args){
+    PyObject *stCapsule, *x;
+    if(!PyArg_ParseTuple(args, "OO", &stCapsule, &x)) return NULL;
+    Set4PyObject* st = (Set4PyObject*)PyCapsule_GetPointer(stCapsule, "Set4PyObjectPtr");
+    long res = st->index(x);
+    return Py_BuildValue("l", res);
+}
+
+static PyMethodDef SetMethods[] = {
+    {"construct", Set4PyObject_construct, METH_VARARGS, "Create set object"},
+    {"construct_from_list", Set4PyObject_construct_from_list, METH_VARARGS, "Create set object from list"},
+    {"add", Set4PyObject_add, METH_VARARGS, "Add item"},
+    {"remove", Set4PyObject_remove, METH_VARARGS, "Remove item"},
+    {"search_higher_equal", Set4PyObject_search_higher_equal, METH_VARARGS, "Search item"},
+    {"min", Set4PyObject_min, METH_VARARGS, "Get minimum item"},
+    {"max", Set4PyObject_max, METH_VARARGS, "Get maximum item"},
+    {"pop_min", Set4PyObject_pop_min, METH_VARARGS, "Pop minimum item"},
+    {"pop_max", Set4PyObject_pop_max, METH_VARARGS, "Pop maximum item"},
+    {"getitem", Set4PyObject_getitem, METH_VARARGS, "Get item by index"},
+    {"pop", Set4PyObject_pop, METH_VARARGS, "Pop item"},
+    {"index", Set4PyObject_index, METH_VARARGS, "Get index of item"},
+    {NULL, NULL, 0, NULL}
+};
+
+static struct PyModuleDef setmodule = {
+    PyModuleDef_HEAD_INIT,
+    "cppset",
+    NULL,
+    -1,
+    SetMethods,
+};
+
+PyMODINIT_FUNC PyInit_cppset(void){
+    return PyModule_Create(&setmodule);
+}
+"""
+    code_setup = r"""
+from distutils.core import setup, Extension
+module = Extension(
+    "cppset",
+    sources=["set_wrapper.cpp"],
+    extra_compile_args=["-O3", "-march=native"]
+)
+setup(
+    name="SetMethod",
+    version="0.0.2",
+    description="wrapper for C++ set",
+    ext_modules=[module]
+)
+"""
+    with open("set_wrapper.cpp", "w") as f:
+        f.write(code_cppset)
+    with open("setup.py", "w") as f:
+        f.write(code_setup)
+    python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+    os.system(f"python{python_version} setup.py build_ext --inplace")
+    exit()
+
+# import cppset
+\end{lstlisting}\end{alg}\SS\begin{alg}\quad\\\upshape
+\begin{lstlisting}
+# multiset
+import os
+import sys
+python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+
+if sys.argv[-1] == "ONLINE_JUDGE":
+    code_multiset = r"""
+#include <Python.h>
+#include <vector>
+#include <set>
+using namespace std;
+const static auto comp_pyobj = [](PyObject* const & lhs, PyObject* const & rhs){
+    return Py_TYPE(lhs)->tp_richcompare(lhs, rhs, Py_LT) == Py_True;
+};
+
+struct MultiSet4PyObject{
+    multiset<PyObject*, decltype(comp_pyobj)> st;
+    MultiSet4PyObject() : st(comp_pyobj) {}
+    MultiSet4PyObject(vector<PyObject*>& vec) : st(vec.begin(), vec.end(), comp_pyobj) {}
+    ~MultiSet4PyObject(){
+        for(PyObject* const & p : st){
+            Py_DECREF(p);
+        }
+    }
+    void add(PyObject* x){
+        Py_INCREF(x);
+        st.insert(x);
+    }
+    void remove(PyObject* x){
+        auto it = st.find(x);
+        st.erase(it);
+        Py_DECREF(*it);
+    }
+    PyObject* search_higher_equal(PyObject* x) const {
+        return *st.lower_bound(x);
+    }
+};
+void MultiSet4PyObject_free(PyObject *obj){
+    MultiSet4PyObject* const p = (MultiSet4PyObject*) PyCapsule_GetPointer(obj, "MultiSet4PyObjectPtr");
+    delete p;
+}
+PyObject* MultiSet4PyObject_construct(PyObject* self, PyObject* args){
+    MultiSet4PyObject* ms = new MultiSet4PyObject();
+    return PyCapsule_New((void*)ms, "MultiSet4PyObjectPtr", MultiSet4PyObject_free);
+}
+PyObject* MultiSet4PyObject_construct_from_list(PyObject* self, PyObject* args){
+    PyObject* lst;
+    if(!PyArg_ParseTuple(args, "O", &lst)) return NULL;
+    int siz;
+    if(PyList_Check(lst)) siz = PyList_GET_SIZE(lst);
+    else if(PyTuple_Check(lst)) siz = PyTuple_GET_SIZE(lst);
+    else return NULL;
+    vector<PyObject*> vec(siz);
+    for(int i=0; i<siz; i++){
+        vec[i] = PyList_Check(lst) ? PyList_GET_ITEM(lst, i) : PyTuple_GET_ITEM(lst, i);
+        Py_INCREF(vec[i]);
+    }
+    MultiSet4PyObject* ms = new MultiSet4PyObject(vec);
+    return PyCapsule_New((void*)ms, "MultiSet4PyObjectPtr", MultiSet4PyObject_free);
+}
+PyObject* MultiSet4PyObject_add(PyObject* self, PyObject* args){
+    PyObject *msCapsule, *x;
+    if(!PyArg_ParseTuple(args, "OO", &msCapsule, &x)) return NULL;
+    MultiSet4PyObject* ms = (MultiSet4PyObject*)PyCapsule_GetPointer(msCapsule, "MultiSet4PyObjectPtr");
+    ms->add(x);
+    return Py_BuildValue("");
+}
+PyObject* MultiSet4PyObject_remove(PyObject* self, PyObject* args){
+    PyObject *msCapsule, *x;
+    if(!PyArg_ParseTuple(args, "OO", &msCapsule, &x)) return NULL;
+    MultiSet4PyObject* ms = (MultiSet4PyObject*)PyCapsule_GetPointer(msCapsule, "MultiSet4PyObjectPtr");
+    ms->remove(x);
+    return Py_BuildValue("");
+}
+PyObject* MultiSet4PyObject_search_higher_equal(PyObject* self, PyObject* args){
+    PyObject *msCapsule, *x;
+    if(!PyArg_ParseTuple(args, "OO", &msCapsule, &x)) return NULL;
+    MultiSet4PyObject* ms = (MultiSet4PyObject*)PyCapsule_GetPointer(msCapsule, "MultiSet4PyObjectPtr");
+    PyObject* res = ms->search_higher_equal(x);
+    return Py_BuildValue("O", res);
+}
+static PyMethodDef MultiSetMethods[] = {
+    {"construct", MultiSet4PyObject_construct, METH_VARARGS, "Create multiset object"},
+    {"construct_from_list", MultiSet4PyObject_construct_from_list, METH_VARARGS, "Create multiset object from list"},
+    {"add", MultiSet4PyObject_add, METH_VARARGS, "Add item"},
+    {"remove", MultiSet4PyObject_remove, METH_VARARGS, "Remove item"},
+    {"search_higher_equal", MultiSet4PyObject_search_higher_equal, METH_VARARGS, "Search item"},
+    {NULL, NULL, 0, NULL}
+};
+static struct PyModuleDef multisetmodule = {
+    PyModuleDef_HEAD_INIT,
+    "multiset",
+    NULL,
+    -1,
+    MultiSetMethods,
+};
+PyMODINIT_FUNC PyInit_multiset(void){
+    return PyModule_Create(&multisetmodule);
+}
+"""
+    code_setup = r"""
+from distutils.core import setup, Extension
+module = Extension(
+    "multiset",
+    sources=["multiset_wrapper.cpp"],
+    extra_compile_args=["-O3", "-march=native"]
+)
+setup(
+    name="MultiSetMethod",
+    version="0.0.4",
+    description="wrapper for C++ multiset",
+    ext_modules=[module]
+)
+"""
+    with open("multiset_wrapper.cpp", "w") as f:
+        f.write(code_multiset)
+    with open("setup.py", "w") as f:
+        f.write(code_setup)
+    os.system(f"python{python_version} setup.py build_ext --inplace")
+    exit()
+# import multiset
+\end{lstlisting}
+\end{alg}
 \end{document}
