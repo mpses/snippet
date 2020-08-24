@@ -1,15 +1,5 @@
 # Fdb version 3
-["lualatex"] 1598175200 "conc.tex" "conc.pdf" "conc" 1598175201
-  "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmex10.tfm" 1136768653 992 662f679a0b3d2d53c1b94050fdaa3f50 ""
-  "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmmi10.tfm" 1136768653 1528 abec98dbc43e172678c11b3b9031252a ""
-  "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmmi5.tfm" 1136768653 1508 3b32edd0d68f6498a5a375e78f9edc5e ""
-  "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmmi7.tfm" 1136768653 1528 e2423ae06dc7dee599cceb79d1c9dc32 ""
-  "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmr10.tfm" 1136768653 1296 45809c5a464d5f32c8f98ba97c1bb47f ""
-  "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmr5.tfm" 1136768653 1220 ad296dff3c8796c18053ab7b9f86ad7c ""
-  "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmr7.tfm" 1136768653 1300 53d07721103816e093902637bc167021 ""
-  "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm" 1136768653 1124 6c73e740cf17375f03eec0ee63599741 ""
-  "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmsy5.tfm" 1136768653 1112 14d5d5f6bd3c949edecb5b872f295553 ""
-  "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmsy7.tfm" 1136768653 1120 2b3f9b25605010c69bc328bea6ac000f ""
+["lualatex"] 1598177675 "conc.tex" "conc.pdf" "conc" 1598177676
   "/usr/local/texlive/2020/texmf-dist/tex/generic/unicode-data/CaseFolding.txt" 1584044743 82810 5f9103a43f1de6931ccd535dc2d04777 ""
   "/usr/local/texlive/2020/texmf-dist/tex/generic/unicode-data/PropList.txt" 1584044743 126063 09a6b8a9bf45d76e1051f087476c584a ""
   "/usr/local/texlive/2020/texmf-dist/tex/generic/unicode-data/ScriptExtensions.txt" 1584044743 21036 0498414f4b3ea003decdfbdc05d5eee4 ""
@@ -50,7 +40,7 @@
   "/usr/local/texlive/2020/texmf-dist/tex/luatex/luaotfload/luaotfload-unicode.lua" 1580769009 3061 d32d058dd7ec9090956d807868f764b0 ""
   "/usr/local/texlive/2020/texmf-var/web2c/luahbtex/lualatex.fmt" 1587915323 2691932 1544ba1e9cbe25cd83fa07944f48918b ""
   "conc.aux" 1598175200 8 a94a2480d3289e625eea47cd1b285758 ""
-  "conc.tex" 1598175067 4 c204acf1cc0179620554e2e4bb862195 ""
+  "conc.tex" 1598177612 934 309215f2e954158727259f9cfe93b742 ""
   (generated)
-  "conc.log"
   "conc.pdf"
+  "conc.log"

@@ -2818,7 +2818,7 @@ class Bit2:
 \SS
 
 \begin{defi}
-ある列の{\bf 転倒数} (inversion number) とは、その整列性の測度である。厳密には数列 $A$ の転倒数は ${\rm inv}(A)=#\left\{(A_i,A_j)\mid i<j, A_i>A_j\right\}$ として定められる。
+ある列の{\bf 転倒数} (inversion number) とは、その整列性の測度である。厳密には数列 $A$ の転倒数は ${\rm inv}(A)=\#\left\{(A_i,A_j)\mid i<j, A_i>A_j\right\}$ として定められる。
 \end{defi}
 \newpage
 \begin{alg} \upshape BIT を用いて転倒数を求めるアルゴリズムを愚直 $O(n^2)$ から $O(\max(A) + n \log n)$ に改善することができる。$(n=|A|)$\\
@@ -2924,7 +2924,7 @@ class Bit:
 
 \newpage
 
-\begin{exm} \upshape 空集合 $S$ があるので、$Q$ 個のクエリを処理しなさい。$T=1$ のとき整数 $X$ を $S$ に追加し、$T=2$ のとき $S$ で $X$ 番目に小さい数を答えそれを削除しなさい。$1\le Q,X\le 2\times10^5$\\ARC033 C - データ構造\\
+\begin{exm} \upshape 空集合 $S$ があるので、$Q$ 個のクエリを処理しなさい。$T=1$ のとき整数 $X$ を $S$ に追加し、$T=2$ のとき $S$ で $X$ 番目に小さい数を答えそれを削除しなさい。$1\le Q,X\le 2\times10^5$\\ARC033 C - データ構造\label{ARC033C}\\
 \begin{lstlisting}
 _, *Q = [[*map(int, o.split())] for o in open(0)]
 
@@ -3048,7 +3048,7 @@ S = SegmentTree(list(enumerate(A)),
 
 C++ には \lstinline{set}（内部的にソートされる集合）や \lstinline{multiset}（内部的にソートされる多重集合）が標準で平衡二分探索木で実装されており、競技プログラミングでもそれを前提とした問題が多くある。しかし残念ながらPythonにそのようなデータ構造はなく、一方自己実装したところで往々にして複雑なものになり重くなってしまう。これを解決するには前述の通り（場合によって座標圧縮をした後）BITやセグ木上の二分探索で解決できることが多いが、他の解決法を考える。
 
-\newapage
+\newpage
 \begin{alg}\quad\\\upshape
 \begin{lstlisting}
 from heapq import*
@@ -3467,6 +3467,204 @@ setup(
     os.system(f"python{python_version} setup.py build_ext --inplace")
     exit()
 # import multiset
-\end{lstlisting}
+\end{lstlisting}\quad\\
+リストからの construct はソートしたものを渡すと速い。
 \end{alg}
+
+\SS
+
+\begin{alg}\upshape\quad\\
+\begin{lstlisting}
+from bisect import bisect_left, bisect_right, insort_right
+class SquareSkipList:
+    # SkipList の層数を 2 にした感じの何か
+    # std::multiset の代用になる
+    def __init__(self, values = None, sorted_ = False, square = 1000, seed = 42, inf = float("inf")):
+        # values: 初期値のリスト
+        # sorted_: 初期値がソート済みであるか
+        # square: 最大データ数の平方根
+        # seed: 乱数のシード
+        # inf: 番兵（要素がタプルのときは (float("inf"), float("inf")) にする）
+        self.square = square
+        if values is None:
+            self.rand_y = seed
+            self.layer1 = [inf]
+            self.layer0 = [[]]
+        else:
+            self.layer1 = layer1 = []
+            self.layer0 = layer0 = []
+            if not sorted_:
+                values.sort()
+            y = seed
+            l0 = []
+            for v in values:
+                y ^= (y & 0x7ffff) << 13
+                y ^= y >> 17
+                y ^= (y & 0x7ffffff) << 5
+                if y % square == 0:
+                    layer0.append(l0)
+                    l0 = []
+                    layer1.append(v)
+                else:
+                    l0.append(v)
+            layer1.append(inf)
+            layer0.append(l0)
+            self.rand_y = y
+
+    def add(self, x):  # 要素の追加  # O(sqrt(n))
+        # xorshift
+        y = self.rand_y
+        y ^= (y & 0x7ffff) << 13
+        y ^= y >> 17
+        y ^= (y & 0x7ffffff) << 5
+        self.rand_y = y
+
+        if y % self.square == 0:
+            layer1, layer0 = self.layer1, self.layer0
+            idx1 = bisect_right(layer1, x)
+            layer1.insert(idx1, x)
+            layer0_idx1 = layer0[idx1]
+            idx0 = bisect_right(layer0_idx1, x)
+            layer0.insert(idx1 + 1, layer0_idx1[idx0:])
+            del layer0_idx1[idx0:]
+        else:
+            idx1 = bisect_right(self.layer1, x)
+            insort_right(self.layer0[idx1], x)
+
+    def remove(self, x):  # 要素の削除  # O(sqrt(n))
+        # x が存在しない場合、x 以上の最小の要素が削除される
+        idx1 = bisect_left(self.layer1, x)
+        layer0_idx1 = self.layer0[idx1]
+        idx0 = bisect_left(layer0_idx1, x)
+        if idx0 == len(layer0_idx1):
+            del self.layer1[idx1]
+            self.layer0[idx1] += self.layer0.pop(idx1 + 1)
+        else:
+            del layer0_idx1[idx0]
+
+    def search_higher_equal(self, x):  # x 以上の最小の値を返す  O(log(n))
+        idx1 = bisect_left(self.layer1, x)
+        layer0_idx1 = self.layer0[idx1]
+        idx0 = bisect_left(layer0_idx1, x)
+        if idx0 == len(layer0_idx1):
+            return self.layer1[idx1]
+        return layer0_idx1[idx0]
+
+    def search_higher(self, x):  # x を超える最小の値を返す  O(log(n))
+        idx1 = bisect_right(self.layer1, x)
+        layer0_idx1 = self.layer0[idx1]
+        idx0 = bisect_right(layer0_idx1, x)
+        if idx0 == len(layer0_idx1):
+            return self.layer1[idx1]
+        return layer0_idx1[idx0]
+
+    def search_lower(self, x):  # x 未満の最大の値を返す  O(log(n))
+        idx1 = bisect_left(self.layer1, x)
+        layer0_idx1 = self.layer0[idx1]
+        idx0 = bisect_left(layer0_idx1, x)
+        if idx0 == 0:  # layer0_idx1 が空の場合とすべて x 以上の場合
+            return self.layer1[idx1 - 1]
+        return layer0_idx1[idx0 - 1]
+
+    def pop(self, idx):
+        # 小さい方から idx 番目の要素を削除してその要素を返す（0-indexed）
+        # O(sqrt(n))
+        # for を回すので重め、使うなら square パラメータを大きめにするべき
+        layer0 = self.layer0
+        s = -1
+        for i, l0 in enumerate(layer0):
+            s += len(l0) + 1
+            if s >= idx:
+                break
+        if s == idx:
+            layer0[i] += layer0.pop(i + 1)
+            return self.layer1.pop(i)
+        else:
+            return layer0[i].pop(idx - s)
+
+    def pop_max(self):
+        # 最大値を削除してその要素を返す（0-indexed） O(1)
+        # 空ならエラー
+        if self.layer0[-1]:
+            return self.layer0[-1].pop()
+        else:
+            del self.layer0[-1]
+            return self.layer1.pop(-2)
+
+    def __getitem__(self, item):
+        # 小さい方から idx 番目の要素を返す  O(sqrt(N))
+        layer0 = self.layer0
+        s = -1
+        for i, l0 in enumerate(layer0):
+            s += len(l0) + 1
+            if s >= item:
+                break
+        if s == item:
+            return self.layer1[i]
+        else:
+            return layer0[i][item - s]
+
+    def min(self):  # 最小値を返す  空なら inf を返す  O(1)
+        return self.layer0[0][0] if self.layer0[0] else self.layer1[0]
+
+    def max(self):  # 最大値を返す  空ならエラー  O(1)
+        return self.layer0[-1][-1] if self.layer0[-1] else self.layer1[-2]
+
+    def merge(self, r):  # 結合  O(sqrt(n))
+        self.layer0[-1] += r.layer0[0]
+        self.layer0 += r.layer0[1:]
+        del self.layer1[-1]
+        self.layer1 += r.layer1
+
+    def split(self, k):  # k 以上を切り離す  O(sqrt(n))
+        idx1 = bisect_left(self.layer1, k)
+        layer0_idx1 = self.layer0[idx1]
+        idx0 = bisect_left(layer0_idx1, k)
+        r = SquareSkipList(square = self.square, seed = self.rand_y)
+        r.layer1 = self.layer1[idx1:]
+        r.layer0 = [layer0_idx1[idx0:]] + self.layer0[idx1 + 1:]
+        del self.layer1[idx1:-1], layer0_idx1[idx0:], self.layer0[idx1 + 1:]
+        return r
+
+    def print(self):
+        print(self.layer1)
+        print(self.layer0)
+
+    def __iter__(self):
+        layer1 = self.layer1
+        layer0 = self.layer0
+        idx1 = idx0 = 0
+        layer0_idx1 = layer0[idx1]
+        while True:
+            if len(layer0_idx1) == idx0:
+                if len(layer1) - 1 == idx1:
+                    return
+                yield layer1[idx1]
+                idx1 += 1
+                layer0_idx1 = layer0[idx1]
+                idx0 = 0
+            else:
+                yield layer0_idx1[idx0]
+                idx0 += 1
+\end{lstlisting}
+\quad\\
+Lgeu (nagiss) さんの実装 (CC0) を借用させていただいています。SkipList（乱択アルゴリズムによる管理）の層数が $2$ のものっぽい？これぐらい実装が複雑でないとだいぶ軽くなる。xorshiftは疑似乱数列生成法のひとつ。
+\end{alg}
+
+\SS
+
+\begin{exm} \upshape \ref{ARC033C} と同じ。\\
+\begin{lstlisting}
+import cppset
+_, *Q = [[*map(int, o.split())] for o in open(0)]
+s = cppset.construct()
+for t, x in Q:
+    if t == 1:
+        cppset.add(s, x)
+    else:
+        print(cppset.pop(s, x - 1))
+\end{lstlisting}
+\end{exm}
+\newpage
+%\input{conc}
 \end{document}
