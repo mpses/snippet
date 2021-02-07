@@ -346,7 +346,7 @@ def is_prime(x):
 
 
 # ---------- UnionFind ---------- #
-class UnionFind():
+class UnionFind:
     def __init__(self, n):
         self.n = n
         self.parents = [-1] * n
@@ -385,7 +385,7 @@ class UnionFind():
         return len(self.roots())
 
 
-class WeightedUnionFind():
+class WeightedUnionFind:
     # 重みつき UnionFind
     def __init__(self, n):
         self.n = n
@@ -440,7 +440,7 @@ class WeightedUnionFind():
 
 INF = 10**9
 from biesct import*
-class PPUnionFind():
+class PPUnionFind:
     # 部分永続 UnionFind
     def __init__(self, n):
         self.n = n
@@ -487,6 +487,7 @@ class PPUnionFind():
 # ------------------------------- #
 
 
+
 def base(n, k: "2 <= |k| <= 62"):
     # k進数
     if not 2 <= abs(k) <= 62:
@@ -504,3 +505,168 @@ def base(n, k: "2 <= |k| <= 62"):
         else:
             n = n // k
     return b[::-1]
+
+
+from itertools import*
+class Imos:
+    # imos法
+    def __init__(self, n):
+        self.B = [0] * n
+        self.n = n
+
+    def __call__(self, l, r, v = 1):
+        l, r = max(l, 0), min(r, self.n - 1)
+        self.B[l] += v
+        if r + 1 != self.n:
+            self.B[r + 1] -= v
+
+    def out(self):
+        *res, = accumulate(self.B)
+        # self.__init__(self.n)
+        return res
+
+
+
+# ------------- BIT ------------- #
+class Bit:
+    # Binary Indexed Tree
+    def __init__(self, n):
+        self.size = n
+        self.tree = [0] * (n + 1)
+
+    def __iter__(self):
+        psum = 0
+        for i in range(self.size):
+            csum = self.sum(i + 1)
+            yield csum - psum
+            psum = csum
+        raise StopIteration()
+
+    def __str__(self):  # O(nlogn)
+        return str(list(self))
+
+    def sum(self, i):
+        # Σ [0, i)
+        if not (0 <= i <= self.size): raise ValueError("error!")
+        s = 0
+        while i > 0:
+            s += self.tree[i]
+            i -= i & -i
+        return s
+
+    def add(self, i, x):
+        if not (0 <= i < self.size): raise ValueError("error!")
+        i += 1
+        while i <= self.size:
+            self.tree[i] += x
+            i += i & -i
+
+    def __getitem__(self, key):
+        if not (0 <= key < self.size): raise IndexError("error!")
+        return self.sum(key + 1) - self.sum(key)
+
+    def __setitem__(self, key, value):
+        if not (0 <= key < self.size): raise IndexError("error!")
+        self.add(key, value - self[key])
+
+
+class BitImos:　
+    # Query: O(logn)
+    def __init__(self, n):
+        self.bit = Bit(n + 1)
+
+    def add(self, l, r, x = 1):
+        # [l, r) += x
+        self.bit.add(l, x)
+        self.bit.add(r, -x)
+
+    def get(self, i):
+        return self[i]
+
+    def __getitem__(self, key):
+        return self.bit.sum(key + 1)
+
+
+class Bit2:
+    # Query: O(logn)
+    def __init__(self, n):
+        self.bit0 = Bit(n)
+        self.bit1 = Bit(n)
+
+    def add(self, l, r, x = 1):
+        # [l, r) += x
+        self.bit0.add(l, -x * (l - 1))
+        self.bit1.add(l, x)
+        self.bit0.add(r, x * (r - 1))
+        self.bit1.add(r, -x)
+
+    def sum(self, l, r):
+        res = 0
+        res += self.bit0.sum(r) + self.bit1.sum(r) * (r - 1)
+        res -= self.bit0.sum(l) + self.bit1.sum(l) * (l - 1)
+        return res
+
+
+def mergecount(A: list):
+    # 転倒数 O(max(A) + nlogn)
+    bit = Bit(max(A) + 1)
+    cnt = 0
+    for i, a in enumerate(A):
+        cnt += i - bit.sum(a + 1)
+        bit.add(a, 1)
+    return cnt
+
+
+def mergecount_(A: list):
+    # 転倒数(座圧) O(nlogn)
+    bit = Bit(n + 1)
+    cnt = 0
+    for i, (h, d) in enumerate(zip(A, compress(A))):
+        cnt += h * (i - bit.sum(d + 1))
+        bit.add(d, 1)
+    return cnt
+
+
+class Bit_:
+    def __init__(self, a):
+        if hasattr(a, "__iter__"):
+            le = len(a)
+            self.n = 1 << le.bit_length()
+            self.values = values = [0] * (self.n + 1)
+            values[1:le+1] = a[:]
+            for i in range(1, self.n):
+                values[i + (i & -i)] += values[i]
+        elif isinstance(a, int):
+            self.n = 1 << a.bit_length()
+            self.values = [0] * (self.n + 1)
+        else:
+            raise TypeError
+
+    def add(self, i, val):
+        n, values = self.n, self.values
+        while i <= n:
+            values[i] += val
+            i += i & -i
+
+    def sum(self, i):
+        # Σ(0, i]
+        values = self.values
+        res = 0
+        while i > 0:
+            res += values[i]
+            i -= i & -i
+        return res
+
+    def bisect_left(self, v):
+        # sum(i) >= v となる最小の i
+        n, values = self.n, self.values
+        if v > values[n]:
+            return None
+        i, step = 0, n >> 1
+        while step:
+            if values[i + step] < v:
+                i += step
+                v -= values[i]
+            step >>= 1
+        return i + 1
+# ------------------------------- #
