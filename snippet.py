@@ -317,8 +317,8 @@ bases = array.array(int32, bases)
 assert len(bases) == 16384
 
 def is_SPRP(n, a):
-    if n==a: return True
-    if n%a==0: return False
+    if n == a: return True
+    if n % a == 0: return False
     d = m1 = n-1
     s = (d & -d).bit_length() - 1
     d >>= s
@@ -507,9 +507,10 @@ def base(n, k: "2 <= |k| <= 62"):
     return b[::-1]
 
 
-from itertools import*
+from itertools import accumulate
 class Imos:
     # imos法
+    # itertool.accumulate 必須
     def __init__(self, n):
         self.B = [0] * n
         self.n = n
@@ -524,6 +525,43 @@ class Imos:
         *res, = accumulate(self.B)
         # self.__init__(self.n)
         return res
+
+
+from bisect import*
+from itertools import accumulate, chain
+class ImosCompressed:
+    # クエリ先読み座圧対応imos法
+    # bisect, itertools.accumulate, itertools.chain.from_iterable, compress 必須
+    def __init__(self, query: "[[l, r, v], ...]", rclosed = False):
+        if rclosed:
+            query = [[l, r + 1, v] for l, r, v in query]
+        *code, = chain.from_iterable(query)
+        self.s, code, _ = compress(code[::2] + code[1::2])
+        n = len(code)
+        B = [0] * n
+
+        for l, r, v in query:
+            B[code[l]] += v
+            if code[r] != n:
+                B[code[r]] -= v
+        self.code = code
+        *self.res, = accumulate(B)
+
+    def get(self, x):
+        return self.res[bisect(self.s, x) - 1]
+ 
+    def sum(self, l, r):
+        # Σ[l, r) O(n)
+        s, res = self.s, self.res
+        L, R = bisect(s, l) - 1, bisect(s, r) - 1
+        ans = (s[L + 1] - l) * res[L]
+        for i in range(L + 1, R):
+            ans += (s[i + 1] - s[i]) * res[i]
+        ans += (r - s[R]) * res[R]
+        return ans
+ 
+    def sumall(self):
+        return self.sum(0, self.s[-1] + 1)
 
 
 
@@ -601,6 +639,7 @@ class Bit2:
         self.bit1.add(r, -x)
 
     def sum(self, l, r):
+        # Σ [l,r)
         res = 0
         res += self.bit0.sum(r) + self.bit1.sum(r) * (r - 1)
         res -= self.bit0.sum(l) + self.bit1.sum(l) * (l - 1)
@@ -621,7 +660,7 @@ def mergecount_(A: list):
     # 転倒数(座圧) O(nlogn)
     bit = Bit(n + 1)
     cnt = 0
-    for i, (h, d) in enumerate(zip(A, compress(A))):
+    for i, (h, d) in enumerate(zip(A, compress(A)[2])):
         cnt += h * (i - bit.sum(d + 1))
         bit.add(d, 1)
     return cnt
@@ -670,3 +709,53 @@ class Bit_:
             step >>= 1
         return i + 1
 # ------------------------------- #
+
+
+# --------- Segment Tree --------- #
+class SegmentTree(object):
+    __slots__ = ["elem_size", "tree", "default", "op", "real_size"]
+
+    def __init__(self, a, default = float("inf"), op: "func" = min):
+        self.default = default
+        self.op = op
+        if hasattr(a, "__iter__"):
+            self.real_size = len(a)
+            self.elem_size = elem_size = 1 << (self.real_size - 1).bit_length()
+            self.tree = tree = [default] * (elem_size * 2)
+            tree[elem_size : elem_size + self.real_size] = a
+            for i in range(elem_size - 1, 0, -1):
+                tree[i] = op(tree[i << 1], tree[(i << 1) + 1])
+        elif isinstance(a, int):
+            self.real_size = a
+            self.elem_size = elem_size = 1 << (self.real_size - 1).bit_length()
+            self.tree = [default] * (elem_size * 2)
+        else:
+            raise TypeError
+
+    def get_value(self, x: int, y: int) -> int:   # [x, y)
+        l, r = x + self.elem_size, y + self.elem_size
+        tree, result, op = self.tree, self.default, self.op
+        while l < r:
+            if l & 1:
+                result = op(tree[l], result)
+                l += 1
+            if r & 1:
+                r -= 1
+                result = op(tree[r], result)
+            l, r = l >> 1, r >> 1
+        return result
+
+    def __setitem__(self, i: int, value: int) -> None:
+        k = self.elem_size + i
+        op, tree = self.op, self.tree
+        tree[k] = value
+        while k > 1:
+            k >>= 1
+            tree[k] = op(tree[k << 1], tree[(k << 1) + 1])
+
+    def __getitem__(self, i):
+        return self.tree[i + self.elem_size]
+
+    def debug(self):
+        print(self.tree[self.elem_size : self.elem_size + self.real_size])
+# -------------------------------- #
