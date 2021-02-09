@@ -87,6 +87,59 @@ lambda: [*map(list, zip(*a))][::-1]   # 90度左回転
 lambda: [b[::-1] for b in a][::-1]    # 180度回転
 
 
+def meg_bisect(ng, ok, func):
+    # 二分探索・二分法 O(logn)
+    # 半開区間 (ng, ok] / [ok, ng)
+    # func: 単調増加関数
+    while abs(ok - ng) > 1:
+        mid = (ok + ng) // 2
+        if func(mid):
+            ok = mid
+        else:
+            ng = mid
+    return ok
+
+
+def meg_bisect_R(ng, ok, func, eps = 1e-9):
+    # 実数に対する二分法 O(logn)
+    # 半開区間 (ng, ok] / [ok, ng)
+    # func: 単調増加関数
+    while abs(ok - ng) > eps:
+        mid = (ok + ng) // 2
+        if func(mid):
+            ok = mid
+        else:
+            ng = mid
+    return ok
+
+
+def trisect(func, left, right, eps = 1e-9):
+    # 三分探索 O(logn)
+    # func: 極値が高々ひとつである関数
+    while abs(right - left) > eps:
+        mid_l = (left * 2 + right) / 3
+        mid_r = (left + right * 2) / 3
+        if func(mid_l) < func(mid_r):
+            right = mid_r
+        else:
+            left = mid_l
+    return (right + left) / 2
+
+
+def trisect2(func, left, right, limit = 10**6):
+    # 三分探索 O(logn)
+    # func: 極値が高々ひとつである関数
+    for _ in [None] * limit:
+        mid_l = (left * 2 + right) / 3
+        mid_r = (left + right * 2) / 3
+        if func(mid_l) < func(mid_r):
+            right = mid_r
+        else:
+            left = mid_l
+    return (right + left) / 2
+
+
+
 # ----------- mod系 ----------- #
 MOD = 10**9 + 7
 MOD2 = 998244353
@@ -286,7 +339,7 @@ class Osa_k:
 
 
 def fast_prime_factorization(n):
-    # 素因数分解(ロー法) O(⁴√n polylog(n))
+    # 素因数分解(ロー法) O(⁴√n polylogn)
     from subprocess import Popen, PIPE
     return [*map(int, Popen(["factor", str(n)], stdout=PIPE).communicate()[0].split()[1:])]
 
@@ -714,7 +767,7 @@ class Bit_:
 # --------- Segment Tree --------- #
 class SegmentTree(object):
     __slots__ = ["elem_size", "tree", "default", "op", "real_size"]
-
+    
     def __init__(self, a, default = float("inf"), op: "func" = min):
         self.default = default
         self.op = op
