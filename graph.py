@@ -1,4 +1,7 @@
 class Graph:
+    # 無向または有向の、重み付きなしグラフ
+    # 自己ループがあっても良い (DFSは不可)
+    # 多重辺は記録されない
     def __init__(self, n, directed = False, destroy = False, edges = []):
         self.n = n
         self.directed = directed
@@ -18,10 +21,11 @@ class Graph:
 
     def bfs(self, start = 0, goal = -1, time = 0, save = False):
         """
+        BFS (幅優先探索) O(V+E)
         :param start: スタート地点
         :param goal: ゴール地点
         :param save: True = 前回の探索結果を保持する
-        :return: (ループがあっても)最短距離。存在しなければ -1
+        :return: (ループがあっても) 最短距離。存在しなければ -1
         """
         if not save:
             self.parent = [-1] * self.n
@@ -78,7 +82,7 @@ class Graph:
         p, t = start, 0
         self.parent[p] = -2
         next_set = deque([(p, t)])
-        sub_edges,sub_vers = set(),set()
+        sub_edges, sub_vers = set(), set()
 
         while next_set:
             p, t = next_set.popleft()
@@ -87,7 +91,7 @@ class Graph:
                 if q == self.parent[p] and not self.directed:
                     """ 逆流した時の処理 """
                     continue
-                sub_edges.add((min(p,q),max(p,q)))
+                sub_edges.add((min(p, q), max(p, q)))
                 if self.parent[q] != -1:
                     """ サイクル時の処理 """
                     continue
@@ -159,6 +163,7 @@ class Graph:
 
     def dfs(self, start = 0, goal = -1, time = 0, save = False):
         """
+        DFS (深さ優先探索) O(V+E)
         :param start: スタート地点
         :param goal: ゴール地点
         :param save: True = 前回の探索結果を保持する
@@ -172,7 +177,7 @@ class Graph:
         else:
             edges2 = [self.edges[p].copy() for p in range(self.n)]
 
-        parent,directed = self.parent,self.directed
+        parent,directed = self.parent, self.directed
 
         p, t = start, time
         parent[p] = -2
@@ -330,7 +335,7 @@ class Graph:
                 """ 点 p から親ノードに戻ってきた時の親ノードにおける処理 """
         return res
 
-    def tree_counter(self, detail=False):
+    def tree_counter(self, detail = False):
         """
         :param detail: True = サイクルのリストを返す
         :return: 木(閉路を含まない)の個数を返す

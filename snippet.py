@@ -813,6 +813,7 @@ class SegmentTree(object):
         print(self.tree[self.elem_size : self.elem_size + self.real_size])
 # -------------------------------- #
 
+
 class CycleGetter():
     def __init__(self, A, max_time, start = 0, lift = None: "list or func"):
         """
@@ -825,7 +826,7 @@ class CycleGetter():
                 cnt: cycle回数
         """
         self.A = A
-        if hasattr(lift, "__iter__"):
+        if hasattr(lift, "__getitem__"):
             L = lift
             lift = lambda x: L[x]
         elif lift is None:
@@ -855,8 +856,8 @@ class CycleGetter():
 
     def apply(self, time):
         """
-        :param time: time回進む
-        :return:
+        :param time: 進む回数
+        :return: 進み終わったときの場所
         """
         if time < len(self.front):
             return self.front[time]
