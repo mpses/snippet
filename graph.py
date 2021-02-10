@@ -172,7 +172,7 @@ class Graph:
         else:
             edges2 = [self.edges[p].copy() for p in range(self.n)]
 
-        parent,directed=self.parent,self.directed
+        parent,directed = self.parent,self.directed
 
         p, t = start, time
         parent[p] = -2
