@@ -1,7 +1,7 @@
 # snippet
 競技プログラミング用
 
-## snippet
+### snippet.py
 - 入力・再帰制限・タイマー
 - リスト埋め込み
 - 更新クラス
@@ -27,11 +27,19 @@
   - クエリ先読み座圧対応
 - BIT (Binary Indexed Tree)
   - BIT で imos法
-  - BIT ２本
+  - BIT 2本
   - BIT 転倒数
     - 座圧対応
   - BIT で二分探索
 - Segment Tree
+- サイクル取得クラス
+
+### graph.py
+- 重みなしグラフ
+
+### graph2.py
+- 重みつきグラフ
+
 
 ## 参考
 https://github.com/Lgeu/snippet
