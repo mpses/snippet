@@ -45,7 +45,7 @@ class V:
     def __str__(self):
         return str(self.v)
 
-    def update(self, n):
+    def __call__(self, n):
         if n is None:
             return
 
@@ -81,10 +81,10 @@ s = s[::-1, :].T  # 90度回転
 s = s[::-1, ::-1]  # 180度回転
 s = np.rot90(s, n).copy()  # 反時計回りに 90 * n 度 回転
 
-lambda: [*map(list, zip(*a))]   # 転置
-lambda: [*map(list, zip(*a[::-1]))]   # 90度右回転
-lambda: [*map(list, zip(*a))][::-1]   # 90度左回転
-lambda: [b[::-1] for b in a][::-1]    # 180度回転
+lambda a: [*map(list, zip(*a))]   # 転置
+lambda a: [*map(list, zip(*a[::-1]))]   # 90度右回転
+lambda a: [*map(list, zip(*a))][::-1]   # 90度左回転
+lambda a: [b[::-1] for b in a][::-1]    # 180度回転
 
 
 def meg_bisect(ng, ok, func):
@@ -814,23 +814,26 @@ class SegmentTree(object):
 # -------------------------------- #
 
 
+
 class CycleGetter():
-    def __init__(self, A, max_time, start = 0, lift = None: "list or func"):
+    def __init__(self, max_time, lift: "list or func", start = 0, decrement = True):
         """
         :param max_time: 移動回数
         :param start: 初期条件
         :param lift: 遷移の関数（リストの場合はlift[i]）
-        :return front: cycleまでの要素のリスト
+        :return res: max_time 回進んだあとの場所
+                front: cycleまでの要素のリスト
                 cycle: cycle内の要素のリスト
                 end: cycle後の余った部分の要素のリスト
                 cnt: cycle回数
         """
-        self.A = A
+        self.max_time = max_time
         if hasattr(lift, "__getitem__"):
-            L = lift
-            lift = lambda x: L[x]
-        elif lift is None:
-            lift = lambda x: A[x]
+            LIFT = lift
+            if decrement:
+                LIFT = [None] + LIFT
+                max_time += 1
+            lift = lambda x: LIFT[x]
         p = start
         front, cycle, end = [], [], []
         cnt = 0
@@ -840,9 +843,7 @@ class CycleGetter():
         for i in range(1, max_time):
             p = lift(p)
             if p in visit:
-                """
-                (L, R) = (サイクルに入るまでに移動した回数, サイクルの終端に着くまでに移動した回数)
-                """
+                # (L, R) = (サイクルに入るまでに移動した回数, サイクルの終端に着くまでに移動した回数)
                 L, R = visit[p], i
                 period = R - L
                 break
@@ -854,14 +855,25 @@ class CycleGetter():
             cnt = (max_time - L) // period
         self.front, self.cycle, self.end, self.cnt = front, cycle, end, cnt
 
-    def apply(self, time):
+    def __call__(self):
+        return self.front, self.cycle, self.end, self.cnt
+    
+    def apply(self, time = None):
         """
         :param time: 進む回数
         :return: 進み終わったときの場所
         """
+        if time is None:
+            time = self.max_time
         if time < len(self.front):
             return self.front[time]
         else:
             time -= len(self.front)
-            time %= len(self.cycle)
-            return self.cycle[time]
+            if self.cycle:
+                time %= len(self.cycle)
+                return self.cycle[time]
+            else:
+                return self.end()
+    
+    def sum(self):
+        return sum(self.front) + sum(self.cycle) * self.cnt + sum(self.end)

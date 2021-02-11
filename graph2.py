@@ -15,6 +15,9 @@ class Graph2:
             self.edges[y].append((x, cost))
 
     def to_queue(self):
+        """
+        隣接行列を取得する O(n^2)
+        """
         G = [[INF] * self.n for _ in range(self.n)]
         for i, g in enumerate(self.edges):
             for j, cost in g:
@@ -98,7 +101,7 @@ class Graph2:
             from scipy.sparse.csgraph import floyd_warshall
             # from scipy.sparse import csr_matrix
             # G = csr_matrix(G)
-            return floyd_warshall(G)
+            return floyd_warshall(G).tolist()
         
 
     def Astar(self, start, goal,  h_cost: "func", max_cost = None) -> int:
