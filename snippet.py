@@ -827,12 +827,12 @@ class CycleGetter():
                 end: cycle後の余った部分の要素のリスト
                 cnt: cycle回数
         """
+        # max_time += 1
         self.max_time = max_time
         if hasattr(lift, "__getitem__"):
             LIFT = lift
             if decrement:
                 LIFT = [None] + LIFT
-                max_time += 1
             lift = lambda x: LIFT[x]
         p = start
         front, cycle, end = [], [], []
