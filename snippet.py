@@ -811,6 +811,23 @@ class SegmentTree(object):
 
     def debug(self):
         print(self.tree[self.elem_size : self.elem_size + self.real_size])
+
+class SparseTable:
+    def __init__(self, values, op = min, zero_element = float("inf")):
+        # O(nlogn * (op の計算量))
+        self.n = n = len(values)
+        self.table = table = [values]
+        self.op = op
+        self.zero_element = zero_element
+        for d in range(n.bit_length()-1):
+            table.append([op(v1, v2) for v1, v2 in zip(table[-1], table[-1][1 << d:])])
+ 
+    def __call__(self, l, r):
+        # [l, r)
+        # O(op の計算量)
+        bl_m1 = (r - l).bit_length() - 1
+        t = self.table[bl_m1]
+        return self.op(t[l], t[r - (1 << bl_m1)])
 # -------------------------------- #
 
 
@@ -877,3 +894,19 @@ class CycleGetter():
     
     def sum(self):
         return sum(self.front) + sum(self.cycle) * self.cnt + sum(self.end)
+
+
+def ZeroSumRange(a, unhashable = False):
+    """
+    総和が零元になるような空でない連続する部分列の数
+    """
+    from itertools import accumulate
+    from collections import Counter
+    *a, = accumulate(a)
+    e = a[0] - a[0]
+    if unhashable:
+        a = [tuple(b) for b in a]
+        e = tuple(e)
+    C = Counter(a)
+    C[e] += 1
+    return sum(v * (v - 1) // 2 for v in C.values())

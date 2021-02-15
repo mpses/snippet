@@ -1,4 +1,5 @@
 INF = float("inf")
+from heapq import*
 class Graph2:
     # 無向または有向の、重み付きグラフ
     # 多重辺も記録される
@@ -101,8 +102,7 @@ class Graph2:
             from scipy.sparse.csgraph import floyd_warshall
             # from scipy.sparse import csr_matrix
             # G = csr_matrix(G)
-            return floyd_warshall(G).tolist()
-        
+            return floyd_warshall(G).tolist()    
 
     def Astar(self, start, goal,  h_cost: "func", max_cost = None) -> int:
         """
